@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@drawable/background">
+
+    <!-- Back Arrow -->
+    <ImageView
+        android:id="@+id/backArrowDashboard"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@drawable/ic_back"
+        android:contentDescription="Back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/dashboardTitle"
+        android:layout_width="176dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="64dp"
+        android:text="Dashboard"
+        android:textColor="#1E293B"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/backArrowDashboard"
+        app:layout_constraintStart_toEndOf="@id/backArrowDashboard"
+        app:layout_constraintTop_toTopOf="@id/backArrowDashboard"
+        app:layout_constraintVertical_bias="0.0" />
+        
+    <!-- Welcome Message -->
+    <TextView
+        android:id="@+id/tvWelcome"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Welcome!"
+        android:textColor="#1E293B"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dashboardTitle" />
+    
+    <!-- Medicine schedule Button -->
+    <Button
+        android:id="@+id/btnMedicineList"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="104dp"
+        android:backgroundTint="#2563EB"
+        android:text="Medicine schedule"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dashboardTitle" />
+
+    <!-- Add Medicine Button -->
+    <Button
+        android:id="@+id/btnAddMedicine"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Medicine"
+        android:textAllCaps="false"
+        android:backgroundTint="#2563EB"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/btnMedicineList"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Medication History/Log Button -->
+    <Button
+        android:id="@+id/btnHistory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Medication History / Log"
+        android:textAllCaps="false"
+        android:backgroundTint="#2563EB"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/btnAddMedicine"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Emergency Info Button -->
+    <Button
+        android:id="@+id/btnEmergencyInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Emergency Information"
+        android:textAllCaps="false"
+        android:backgroundTint="#2563EB"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/btnHistory"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Profile Settings Button -->
+    <Button
+        android:id="@+id/btnProfileSettings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Profile Settings"
+        android:textAllCaps="false"
+        android:backgroundTint="#2563EB"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/btnEmergencyInfo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

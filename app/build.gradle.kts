@@ -41,14 +41,15 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
     implementation("com.google.firebase:firebase-auth:24.0.1")
-    implementation("com.google.firebase:firebase-database:22.0.0")
     implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore:24.11.1")
 
 
 }

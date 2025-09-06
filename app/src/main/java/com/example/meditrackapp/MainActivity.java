@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 // Navigate to login activity
                 Intent intent = new Intent(MainActivity.this, login.class);
                 startActivity(intent);
+
             }
         });
     }
