@@ -32,6 +32,7 @@ public class Dashboard extends AppCompatActivity {
         });
 
         // Set up button click listeners
+        // Set up button click listeners
         btnProfileSettings.setOnClickListener(v ->
                 startActivity(new Intent(Dashboard.this, profile_settings.class)));
     }
