@@ -1,7 +1,13 @@
 package com.example.meditrackapp;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,6 +51,10 @@ public class profile_settings extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
+            // Navigate to login activity and clear back stack
+            Intent intent = new Intent(profile_settings.this, login.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
             finish();
         });
 
@@ -52,8 +62,10 @@ public class profile_settings extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        String uid = mAuth.getCurrentUser().getUid();
-        db.collection("Users").document(uid).get().addOnSuccessListener(this::populateProfile);
+        if (mAuth.getCurrentUser() != null) {
+            String uid = mAuth.getCurrentUser().getUid();
+            db.collection("Users").document(uid).get().addOnSuccessListener(this::populateProfile);
+        }
     }
 
     private void populateProfile(DocumentSnapshot doc) {
