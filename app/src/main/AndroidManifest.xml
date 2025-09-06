@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MediTrackApp">
         <activity
+            android:name=".signup"
+            android:exported="false" />
+        <activity
+            android:name=".login"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
