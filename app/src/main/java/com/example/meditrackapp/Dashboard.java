@@ -33,6 +33,9 @@ public class Dashboard extends AppCompatActivity {
 
         // Set up button click listeners
 
+        btnAddMedicine.setOnClickListener(v ->
+                startActivity(new Intent(Dashboard.this, MedicineType.class)));
+
         btnProfileSettings.setOnClickListener(v ->
                 startActivity(new Intent(Dashboard.this, profile_settings.class)));
     }

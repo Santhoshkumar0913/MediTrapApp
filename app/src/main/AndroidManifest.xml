@@ -14,13 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MediTrackApp">
         <activity
+            android:name=".MedicineSchedule"
+            android:exported="false" />
+        <activity
             android:name=".AddMedicine"
             android:exported="false" />
         <activity
             android:name=".MedicineType"
-            android:exported="false" />
-        <activity
-            android:name=".MedicineDetails"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
