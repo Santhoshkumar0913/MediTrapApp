@@ -2,8 +2,15 @@ package com.example.meditrackapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -37,15 +44,11 @@ public class signup extends AppCompatActivity {
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
         backArrow = findViewById(R.id.backArrow);
 
-        // Inside onCreate in signup.java
-        Spinner spinnerGender = findViewById(R.id.spinnerGender);
-
         // Gender options
         String[] genders = {"Male", "Female", "Other"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, genders);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGender.setAdapter(adapter);
-
 
         // Back to Login
         backArrow.setOnClickListener(v -> {
@@ -66,37 +69,80 @@ public class signup extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String gender = spinnerGender.getSelectedItem().toString();
 
-        if (name.isEmpty() || age.isEmpty() || familyPhone.isEmpty() || personalPhone.isEmpty()
-                || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+        // Validate all fields
+        if (name.isEmpty()) {
+            etName.setError("Name is required");
+            etName.requestFocus();
+            return;
+        }
+
+        if (age.isEmpty()) {
+            etAge.setError("Age is required");
+            etAge.requestFocus();
+            return;
+        }
+
+        if (familyPhone.isEmpty()) {
+            etFamilyPhone.setError("Family phone number is required");
+            etFamilyPhone.requestFocus();
+            return;
+        }
+
+        if (familyPhone.length() != 10) {
+            etFamilyPhone.setError("Phone number must be 10 digits");
+            etFamilyPhone.requestFocus();
+            return;
+        }
+
+        if (personalPhone.isEmpty()) {
+            etPersonalPhone.setError("Personal phone number is required");
+            etPersonalPhone.requestFocus();
+            return;
+        }
+
+        if (personalPhone.length() != 10) {
+            etPersonalPhone.setError("Phone number must be 10 digits");
+            etPersonalPhone.requestFocus();
+            return;
+        }
+
+        if (email.isEmpty()) {
+            etEmail.setError("Email is required");
+            etEmail.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            etPassword.setError("Password is required");
+            etPassword.requestFocus();
             return;
         }
 
         if (!isValidPassword(password)) {
             etPassword.setError("Password must have ≥8 chars, 1 upper, 1 lower, 1 number, 1 special char");
+            etPassword.requestFocus();
             return;
         }
 
+        // Create user with Firebase Auth
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String uid = mAuth.getCurrentUser().getUid();
                 User user = new User(uid, name, age, gender, familyPhone, personalPhone, email);
 
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                // 🔹 Save user data to Firestore (async)
                 db.collection("Users").document(uid).set(user)
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(signup.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
-                            // Sign out the current user before navigating to login
-                            mAuth.signOut();
-                            // Use clear flags to ensure proper navigation
-                            Intent intent = new Intent(signup.this, login.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
-                        })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(signup.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(signup.this, "Error saving user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         });
+
+                // 🔹 Show success message & redirect immediately
+                Toast.makeText(signup.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(signup.this, login.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
 
             } else {
                 Toast.makeText(signup.this, "Signup failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
