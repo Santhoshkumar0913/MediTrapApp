@@ -1,0 +1,10 @@
+<resources>
+    <!-- Other styles -->
+
+    <style name="MedicineIcon">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+</resources>
