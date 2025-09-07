@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MediTrackApp">
         <activity
+            android:name=".MedicineSchedule"
+            android:exported="false" />
+        <activity
             android:name=".AddMedicine"
             android:exported="false" />
         <activity

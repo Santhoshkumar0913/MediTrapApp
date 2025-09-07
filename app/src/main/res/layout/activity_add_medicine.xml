@@ -85,16 +85,16 @@
 
                 <ImageButton
                     android:id="@+id/btnDecrease"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_minus"
                     android:contentDescription="Decrease dosage" />
 
                 <EditText
                     android:id="@+id/etDosage"
-                    android:layout_width="80dp"
-                    android:layout_height="48dp"
+                    android:layout_width="50dp"
+                    android:layout_height="38dp"
                     android:text="1"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -106,8 +106,8 @@
 
                 <ImageButton
                     android:id="@+id/btnIncrease"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_plus"
                     android:contentDescription="Increase dosage" />
