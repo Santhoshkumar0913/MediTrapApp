@@ -23,9 +23,6 @@
             android:name=".MedicineType"
             android:exported="false" />
         <activity
-            android:name=".MedicineDetails"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
