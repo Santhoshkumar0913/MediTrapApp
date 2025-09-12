@@ -78,7 +78,7 @@
         android:id="@+id/btnHistory"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Medication History / Log"
+        android:text="Medication History"
         android:textAllCaps="false"
         android:backgroundTint="#2563EB"
         android:textColor="#FFFFFF"
