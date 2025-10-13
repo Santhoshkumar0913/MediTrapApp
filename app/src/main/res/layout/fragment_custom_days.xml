@@ -122,62 +122,29 @@
             android:padding="8dp" />
     </LinearLayout>
 
-    <!-- Divider -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#E5E7EB"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Times per day (Dosage Style) -->
+    <!-- Frequency -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Times per selected day"
+        android:text="Frequency"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#1E293B"
         android:layout_marginBottom="8dp" />
 
     <LinearLayout
-        android:id="@+id/layoutTimesPerDay"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal"
-        android:background="@drawable/rounded_border"
-        android:padding="4dp"
+        android:orientation="vertical"
         android:layout_marginBottom="20dp">
 
-        <ImageButton
-            android:id="@+id/btnDecreaseCustomFreq"
-            android:layout_width="48dp"
+        <Spinner
+            android:id="@+id/spinnerFrequency"
+            android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_minus"
-            android:contentDescription="Decrease frequency" />
-
-        <EditText
-            android:id="@+id/etCustomFreq"
-            android:layout_width="80dp"
-            android:layout_height="48dp"
-            android:text="1"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:background="@android:color/transparent"
-            android:inputType="number"
-            android:maxLength="2"
-            android:textColor="#1E293B" />
-
-        <ImageButton
-            android:id="@+id/btnIncreaseCustomFreq"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_plus"
-            android:contentDescription="Increase frequency" />
+            android:background="@drawable/rounded_border"
+            android:spinnerMode="dropdown"
+            android:padding="8dp" />
     </LinearLayout>
 
     <!-- Continue Button -->
