@@ -14,20 +14,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class profile_settings extends AppCompatActivity {
+public class Settings extends BaseActivity {
 
     private EditText etName, etAge, etFamilyPhone, etPersonalPhone, etEmail;
     private Spinner spinnerGender;
     private Button btnLogout;
     private ImageView backArrow;
-
+    
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_settings);
+        setContentView(R.layout.activity_settings);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -52,7 +52,7 @@ public class profile_settings extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
             // Navigate to login activity and clear back stack
-            Intent intent = new Intent(profile_settings.this, login.class);
+            Intent intent = new Intent(Settings.this, login.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();

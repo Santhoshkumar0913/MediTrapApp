@@ -6,9 +6,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class MedicineType extends AppCompatActivity {
+public class MedicineType extends BaseActivity {
 
     private ImageView backArrow;
     private Button btnSubmit;

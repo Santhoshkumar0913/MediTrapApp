@@ -16,7 +16,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- Title -->
 
     <!-- Logout Button (Top Right) -->
     <TextView
@@ -24,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:text="Profile Settings"
+        android:text="Settings"
         android:textColor="#1E293B"
         android:textSize="22sp"
         android:textStyle="bold"

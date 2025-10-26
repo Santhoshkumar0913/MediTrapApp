@@ -20,6 +20,9 @@
             android:name=".MedicineSchedule"
             android:exported="false" />
         <activity
+            android:name=".MedicineListActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddMedicine"
             android:exported="false" />
         <activity
@@ -38,7 +41,7 @@
             android:name=".Dashboard"
             android:exported="false" />
         <activity
-            android:name=".profile_settings"
+            android:name=".Settings"
             android:exported="false" />
         <activity
             android:name=".signup"

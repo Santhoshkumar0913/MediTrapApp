@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class Dashboard extends AppCompatActivity {
+public class Dashboard extends BaseActivity {
 
     private Button btnMedicineList, btnAddMedicine, btnHistory, btnEmergencyInfo, btnProfileSettings;
     private ImageView backArrowDashboard;
@@ -37,6 +35,9 @@ public class Dashboard extends AppCompatActivity {
                 startActivity(new Intent(Dashboard.this, MedicineType.class)));
 
         btnProfileSettings.setOnClickListener(v ->
-                startActivity(new Intent(Dashboard.this, profile_settings.class)));
+                startActivity(new Intent(Dashboard.this, Settings.class)));
+        btnMedicineList.setOnClickListener(v ->
+                startActivity(new Intent(Dashboard.this, MedicineSchedule.class)));
+
     }
 }

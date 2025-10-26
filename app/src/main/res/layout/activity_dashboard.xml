@@ -106,7 +106,7 @@
         android:id="@+id/btnProfileSettings"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Profile Settings"
+        android:text="Settings"
         android:textAllCaps="false"
         android:backgroundTint="#2563EB"
         android:textColor="#FFFFFF"

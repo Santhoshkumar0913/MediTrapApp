@@ -129,29 +129,32 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="24dp">
 
-                <Button
-                    android:id="@+id/btnBeforeMeal"
+                <CheckBox
+                    android:id="@+id/cbBeforeMeal"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Before Meal"
-                    android:textAllCaps="false"
-                    android:backgroundTint="#2563EB"
-                    android:textColor="#FFFFFF"
-                    app:cornerRadius="12dp"
-                    android:layout_marginEnd="8dp" />
+                    android:textSize="16sp"
+                    android:textColor="#1E293B"
+                    android:padding="12dp"
+                    android:background="@drawable/edittext_bg"
+                    android:layout_marginEnd="8dp"
+                    android:buttonTint="#2563EB" />
 
-                <Button
-                    android:id="@+id/btnAfterMeal"
+                <CheckBox
+                    android:id="@+id/cbAfterMeal"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="After Meal"
-                    android:textAllCaps="false"
-                    android:backgroundTint="#2563EB"
-                    android:textColor="#FFFFFF"
-                    app:cornerRadius="12dp"
-                    android:layout_marginStart="8dp" />
+                    android:textSize="16sp"
+
+                    android:textColor="#1E293B"
+                    android:padding="12dp"
+                    android:background="@drawable/edittext_bg"
+                    android:layout_marginStart="8dp"
+                    android:buttonTint="#2563EB" />
             </LinearLayout>
 
             <!-- Frequency Section -->
@@ -270,18 +273,20 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Reminders Header -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
 
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_clock"
                             android:contentDescription="Reminders"
-                            android:tint="#FF9500" />
+                            app:tint="#2563EB" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -310,114 +315,73 @@
                             app:trackTint="#BFDBFE" />
                     </LinearLayout>
 
-                    <!-- First Reminder Time -->
-                    <androidx.cardview.widget.CardView
+                    <!-- Reminder Times Container -->
+                    <LinearLayout
+                        android:id="@+id/containerReminderTimes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
+                        android:orientation="vertical"
                         android:layout_marginBottom="12dp">
 
-                        <LinearLayout
+                        <!-- Default reminder time item -->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/cardReminderTime1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:padding="12dp"
-                            android:gravity="center_vertical"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            android:layout_marginBottom="8dp"
                             android:background="#F8FAFC">
 
-                            <ImageView
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:src="@drawable/ic_clock"
-                                android:contentDescription="Time"
-                                android:background="@drawable/circle_background"
-                                android:padding="6dp"
-                                android:tint="#FFFFFF" />
-
-                            <TextView
-                                android:id="@+id/tvReminderTime"
-                                android:layout_width="0dp"
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="12:00"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="#1E293B"
-                                android:layout_marginStart="12dp" />
+                                android:orientation="horizontal"
+                                android:padding="12dp"
+                                android:gravity="center_vertical">
 
-                            <ImageView
-                                android:id="@+id/btnTimeSelector"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_clock"
-                                android:contentDescription="Select time" />
-                                
-                            <ImageView
-                                android:id="@+id/btnDeleteTime1"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@android:drawable/ic_menu_delete"
-                                android:tint="#FF0000"
-                                android:layout_marginStart="8dp"
-                                android:contentDescription="Delete time" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-                    
-                    <!-- Second Reminder Time -->
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        android:layout_marginBottom="12dp">
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_clock"
+                                    android:contentDescription="Time"
+                                    android:background="@drawable/circle_background"
+                                    android:padding="6dp"
+                                    app:tint="#FFFFFF" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:padding="12dp"
-                            android:gravity="center_vertical"
-                            android:background="#F8FAFC">
+                                <TextView
+                                    android:id="@+id/tvReminderTime1"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Select Time"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold"
+                                    android:textColor="#64748B"
+                                    android:layout_marginStart="12dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground"
+                                    android:padding="8dp" />
 
-                            <ImageView
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:src="@drawable/ic_clock"
-                                android:contentDescription="Time"
-                                android:background="@drawable/circle_background"
-                                android:padding="6dp"
-                                android:tint="#FFFFFF" />
+                                <ImageView
+                                    android:id="@+id/btnDeleteTime1"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_delete"
+                                    android:layout_marginStart="8dp"
+                                    android:contentDescription="Delete time"
+                                    android:visibility="gone"
+                                    app:tint="#EF4444"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                                    android:padding="4dp" />
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
 
-                            <TextView
-                                android:id="@+id/tvReminderTime2"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="12:00"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="#1E293B"
-                                android:layout_marginStart="12dp" />
-
-                            <ImageView
-                                android:id="@+id/btnTimeSelector2"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@drawable/ic_clock"
-                                android:contentDescription="Select time" />
-                                
-                            <ImageView
-                                android:id="@+id/btnDeleteTime2"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:src="@android:drawable/ic_menu_delete"
-                                android:tint="#FF0000"
-                                android:layout_marginStart="8dp"
-                                android:contentDescription="Delete time" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-
+                    <!-- Add Another Time Button -->
                     <Button
                         android:id="@+id/btnAddAnotherTime"
                         android:layout_width="match_parent"
@@ -435,34 +399,6 @@
                         android:gravity="center" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
-            <!-- Selected Times Display -->
-            <LinearLayout
-                android:id="@+id/containerSelectedTimes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                android:layout_marginBottom="24dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Selected Times"
-                    android:textSize="14sp"
-                    android:textColor="#64748B"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvSelectedTimes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="8:00 AM, 2:00 PM"
-                    android:textSize="16sp"
-                    android:textColor="#1E293B"
-                    android:padding="12dp"
-                    android:background="@drawable/edittext_bg" />
-            </LinearLayout>
 
             <!-- Save Medicine Button -->
             <Button

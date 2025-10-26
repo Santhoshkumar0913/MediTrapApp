@@ -5,9 +5,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class HistoryMedicine extends AppCompatActivity {
+public class HistoryMedicine extends BaseActivity {
 
     private Button btnAll, btnActive, btnCompleted;
     private ImageView backArrow;
