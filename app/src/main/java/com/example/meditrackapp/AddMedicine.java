@@ -17,6 +17,11 @@ import android.widget.Switch;
 
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +48,8 @@ public class AddMedicine extends BaseActivity {
     private Calendar fromDate = Calendar.getInstance();
     private Calendar toDate = Calendar.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
+    private List<String> customDays = new ArrayList<>();
+    private String customFrequency = "Once a day";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -267,8 +274,27 @@ public class AddMedicine extends BaseActivity {
     }
 
     private void showCustomDaysFragment() {
-        // For now, just show a toast message
-        Toast.makeText(this, "Custom days feature coming soon!", Toast.LENGTH_SHORT).show();
+        CustomDaysFragment fragment = new CustomDaysFragment();
+        fragment.setOnCustomDaysSelectedListener(new CustomDaysFragment.OnCustomDaysSelectedListener() {
+            @Override
+            public void onCustomDaysSelected(List<String> selectedDays, String frequency) {
+                customDays = selectedDays;
+                customFrequency = frequency;
+                
+                // Update the custom button text to show selected days
+                if (!selectedDays.isEmpty()) {
+                    btnCustom.setText("Custom: " + String.join(", ", selectedDays));
+                }
+                
+                Toast.makeText(AddMedicine.this, "Custom schedule set: " + String.join(", ", selectedDays), Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragmentContainer, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private void saveMedicine() {
@@ -285,6 +311,13 @@ public class AddMedicine extends BaseActivity {
             return;
         }
 
+        // Get current user information
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "User not authenticated. Please login again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Create medicine object
         Medicine medicine = new Medicine();
         medicine.setName(name);
@@ -292,6 +325,10 @@ public class AddMedicine extends BaseActivity {
         medicine.setReminderEnabled(switchReminder.isChecked());
         medicine.setStartDate(dateFormat.format(fromDate.getTime()));
         medicine.setEndDate(dateFormat.format(toDate.getTime()));
+        medicine.setCustomDays(customDays);
+        medicine.setUserId(currentUser.getUid());
+        medicine.setUserEmail(currentUser.getEmail());
+        medicine.setUserName(currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "User");
         
         // Add reminder times if enabled
         if (switchReminder.isChecked()) {

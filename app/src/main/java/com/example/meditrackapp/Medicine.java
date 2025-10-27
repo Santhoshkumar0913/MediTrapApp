@@ -13,6 +13,9 @@ public class Medicine {
     private List<String> reminderTimes;
     private boolean reminderEnabled;
     private boolean taken;
+    private String userId;
+    private String userEmail;
+    private String userName;
 
     // Default constructor for Firebase
     public Medicine() {
@@ -60,4 +63,13 @@ public class Medicine {
 
     public boolean isTaken() { return taken; }
     public void setTaken(boolean taken) { this.taken = taken; }
+
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 }

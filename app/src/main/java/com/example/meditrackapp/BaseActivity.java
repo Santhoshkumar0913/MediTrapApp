@@ -71,8 +71,8 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
                 return true;
             }
         } else if (itemId == R.id.navigation_add) {
-            if (!(this instanceof AddMedicine)) {
-                startActivity(new Intent(this, AddMedicine.class));
+            if (!(this instanceof MedicineType)) {
+                startActivity(new Intent(this, MedicineType.class));
                 return true;
             }
         } else if (itemId == R.id.navigation_schedule) {
@@ -99,6 +99,8 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
     private void updateBottomNavigationSelection() {
         if (this instanceof Dashboard) {
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+        } else if (this instanceof MedicineType) {
+            bottomNavigationView.setSelectedItemId(R.id.navigation_add);
         } else if (this instanceof AddMedicine) {
             bottomNavigationView.setSelectedItemId(R.id.navigation_add);
         } else if (this instanceof MedicineSchedule) {

@@ -12,6 +12,9 @@ import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,12 +37,22 @@ public class MedicineSchedule extends BaseActivity {
     
     private List<Medicine> todaysMedicines = new ArrayList<>();
     private Medicine nextMedicine = null;
+    private FirebaseMedicineHelper firebaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_medicine_schedule);
         
+        // Check if user is authenticated
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "User not authenticated. Please login again.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        
+        firebaseHelper = new FirebaseMedicineHelper();
         initializeViews();
         setupClickListeners();
         loadTodaysMedicines();
@@ -83,22 +96,59 @@ public class MedicineSchedule extends BaseActivity {
     }
 
     private void loadTodaysMedicines() {
-        // Load all medicines from repository
-        List<Medicine> allMedicines = MedicineRepository.getAll(this);
-        
-        // Filter medicines for today
-        todaysMedicines.clear();
-        String today = getTodayDateString();
-        
-        for (Medicine medicine : allMedicines) {
-            // Check if medicine is scheduled for today
-            if (isMedicineScheduledForToday(medicine, today)) {
-                todaysMedicines.add(medicine);
+        firebaseHelper.getAllMedicines(new FirebaseMedicineHelper.OnMedicinesLoadedListener() {
+            @Override
+            public void onMedicinesLoaded(List<Medicine> medicines) {
+                // Only show medicines for the current user
+                List<Medicine> userMedicines = new ArrayList<>();
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                
+                if (currentUser != null) {
+                    for (Medicine medicine : medicines) {
+                        if (currentUser.getUid().equals(medicine.getUserId())) {
+                            userMedicines.add(medicine);
+                        }
+                    }
+                }
+                
+                // Filter medicines for today
+                todaysMedicines.clear();
+                String today = getTodayDateString();
+                
+                for (Medicine medicine : userMedicines) {
+                    // Check if medicine is scheduled for today
+                    if (isMedicineScheduledForToday(medicine, today)) {
+                        todaysMedicines.add(medicine);
+                    }
+                }
+                
+                // Find next medicine
+                findNextMedicine();
+                updateUI();
             }
-        }
-        
-        // Find next medicine
-        findNextMedicine();
+
+            @Override
+            public void onError(String error) {
+                Toast.makeText(MedicineSchedule.this, "Error loading medicines: " + error, Toast.LENGTH_SHORT).show();
+                // Fallback to local storage if Firebase fails
+                List<Medicine> allMedicines = MedicineRepository.getAll(MedicineSchedule.this);
+                
+                // Filter medicines for today
+                todaysMedicines.clear();
+                String today = getTodayDateString();
+                
+                for (Medicine medicine : allMedicines) {
+                    // Check if medicine is scheduled for today
+                    if (isMedicineScheduledForToday(medicine, today)) {
+                        todaysMedicines.add(medicine);
+                    }
+                }
+                
+                // Find next medicine
+                findNextMedicine();
+                updateUI();
+            }
+        });
     }
 
     private String getTodayDateString() {
@@ -215,10 +265,23 @@ public class MedicineSchedule extends BaseActivity {
 
     private void markMedicineAsTaken(Medicine medicine) {
         medicine.setTaken(true);
-        // Update in repository
-        // For now, just show a toast
-        Toast.makeText(this, medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
-        updateUI();
+        
+        // Update in Firebase
+        firebaseHelper.updateMedicine(medicine, new FirebaseMedicineHelper.OnMedicineAddedListener() {
+            @Override
+            public void onMedicineAdded(boolean success, String message) {
+                runOnUiThread(() -> {
+                    if (success) {
+                        Toast.makeText(MedicineSchedule.this, medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(MedicineSchedule.this, "Error updating medicine: " + message, Toast.LENGTH_SHORT).show();
+                        // Fallback to local update
+                        MedicineRepository.updateMedicine(MedicineSchedule.this, medicine);
+                    }
+                    updateUI();
+                });
+            }
+        });
     }
 
     private void skipMedicine(Medicine medicine) {

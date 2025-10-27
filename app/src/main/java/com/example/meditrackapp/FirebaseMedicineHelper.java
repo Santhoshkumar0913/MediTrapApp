@@ -29,7 +29,7 @@ public class FirebaseMedicineHelper {
     private FirebaseUser currentUser;
     
     public FirebaseMedicineHelper() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com");
         databaseRef = database.getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
     }
@@ -63,6 +63,9 @@ public class FirebaseMedicineHelper {
         medicineValues.put("reminderTimes", medicine.getReminderTimes());
         medicineValues.put("reminderEnabled", medicine.isReminderEnabled());
         medicineValues.put("taken", medicine.isTaken());
+        medicineValues.put("userId", medicine.getUserId());
+        medicineValues.put("userEmail", medicine.getUserEmail());
+        medicineValues.put("userName", medicine.getUserName());
         
         databaseRef.child(MEDICINES_PATH)
                 .child(userId)
@@ -117,6 +120,9 @@ public class FirebaseMedicineHelper {
                                 }
                                 boolean reminderEnabled = snapshot.child("reminderEnabled").getValue(Boolean.class);
                                 boolean taken = snapshot.child("taken").getValue(Boolean.class);
+                                String userId = snapshot.child("userId").getValue(String.class);
+                                String userEmail = snapshot.child("userEmail").getValue(String.class);
+                                String userName = snapshot.child("userName").getValue(String.class);
                                 
                                 Medicine medicine = new Medicine();
                                 medicine.setId(id);
@@ -124,6 +130,9 @@ public class FirebaseMedicineHelper {
                                 medicine.setDosage(dosage);
                                 medicine.setStartDate(startDate);
                                 medicine.setEndDate(endDate);
+                                medicine.setUserId(userId);
+                                medicine.setUserEmail(userEmail);
+                                medicine.setUserName(userName);
                                 medicine.setCustomDays(customDays);
                                 medicine.setReminderTimes(reminderTimes);
                                 medicine.setReminderEnabled(reminderEnabled);
@@ -164,6 +173,9 @@ public class FirebaseMedicineHelper {
         medicineValues.put("reminderTimes", medicine.getReminderTimes());
         medicineValues.put("reminderEnabled", medicine.isReminderEnabled());
         medicineValues.put("taken", medicine.isTaken());
+        medicineValues.put("userId", medicine.getUserId());
+        medicineValues.put("userEmail", medicine.getUserEmail());
+        medicineValues.put("userName", medicine.getUserName());
         
         databaseRef.child(MEDICINES_PATH)
                 .child(userId)
