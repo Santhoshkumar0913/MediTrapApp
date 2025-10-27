@@ -179,6 +179,7 @@ public class MedicineSchedule extends BaseActivity {
             tvNextMedicineName.setText(nextMedicine.getName());
             tvNextMedicineDosage.setText(nextMedicine.getDosage());
             imgNextMedicine.setImageResource(getMedicineTypeIcon(nextMedicine.getName()));
+            imgNextMedicine.setColorFilter(null); // Remove any color filter
             
             btnMarkAsTaken.setVisibility(View.VISIBLE);
             btnSkip.setVisibility(View.VISIBLE);
@@ -187,7 +188,8 @@ public class MedicineSchedule extends BaseActivity {
             tvNextTime.setText("No medication");
             tvNextMedicineName.setText("No medication scheduled");
             tvNextMedicineDosage.setText("Add medicines to see schedule");
-            imgNextMedicine.setImageResource(R.drawable.ic_check_circle);
+            imgNextMedicine.setImageResource(R.drawable.ic_tablet);
+            imgNextMedicine.setColorFilter(null);
             
             btnMarkAsTaken.setVisibility(View.GONE);
             btnSkip.setVisibility(View.GONE);
@@ -204,18 +206,38 @@ public class MedicineSchedule extends BaseActivity {
     }
 
     private int getMedicineTypeIcon(String medicineName) {
-        // Map medicine names to appropriate icons
-        String name = medicineName.toLowerCase();
-        
-        if (name.contains("vitamin") || name.contains("supplement")) {
-            return R.drawable.ic_check_circle;
-        } else if (name.contains("pain") || name.contains("headache")) {
-            return R.drawable.ic_pill_blue;
-        } else if (name.contains("antibiotic") || name.contains("infection")) {
-            return R.drawable.ic_check_circle;
-        } else {
-            return R.drawable.ic_check_circle; // Default icon
+        // Get medicine type from the medicine object
+        Medicine medicine = (medicineName != null && medicineName.equals(nextMedicine != null ? nextMedicine.getName() : "")) 
+            ? nextMedicine 
+            : getMedicineByName(medicineName);
+            
+        if (medicine != null && medicine.getMedicineType() != null) {
+            String type = medicine.getMedicineType().toLowerCase();
+            
+            if (type.contains("tablet")) {
+                return R.drawable.ic_tablet;
+            } else if (type.contains("liquid")) {
+                return R.drawable.ic_liquid;
+            } else if (type.contains("cream")) {
+                return R.drawable.ic_cream;
+            } else if (type.contains("inhaler")) {
+                return R.drawable.ic_inhaler;
+            } else if (type.contains("injection")) {
+                return R.drawable.ic_injection;
+            }
         }
+        
+        // Default icon for unknown or unavailable types
+        return R.drawable.ic_tablet; // Use tablet as default since it's a common type
+    }
+    
+    private Medicine getMedicineByName(String name) {
+        for (Medicine med : todaysMedicines) {
+            if (med.getName().equals(name)) {
+                return med;
+            }
+        }
+        return null;
     }
 
     private void updateMedicineList() {
@@ -250,6 +272,7 @@ public class MedicineSchedule extends BaseActivity {
         
         // Set medicine type icon
         imgMedicineType.setImageResource(getMedicineTypeIcon(medicine.getName()));
+        imgMedicineType.setColorFilter(null); // Remove any color filter
         
         // Set status icon
         if (medicine.isTaken()) {

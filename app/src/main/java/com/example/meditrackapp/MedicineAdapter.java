@@ -44,7 +44,8 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         }
         
         holder.tvMedicineMeta.setText(m.getDosage() + " • " + timeDisplay);
-        holder.tvFrequency.setText("Daily"); // Default frequency since we removed it from the new structure
+        String freq = (m.getFrequency() != null && !m.getFrequency().isEmpty()) ? m.getFrequency() : "Daily";
+        holder.tvFrequency.setText(freq);
         holder.imgStatus.setColorFilter(m.isTaken() ? 0xFF10B981 : 0xFF9CA3AF); // green if taken
     }
 

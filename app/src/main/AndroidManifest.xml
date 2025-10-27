@@ -36,7 +36,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Your activities here -->
+        </activity>
+        <!-- Your activities here -->
         <activity
             android:name=".Dashboard"
             android:exported="false" />

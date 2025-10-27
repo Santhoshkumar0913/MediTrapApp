@@ -1,6 +1,8 @@
 package com.example.meditrackapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,8 +17,9 @@ import java.util.List;
 public class MedicineListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
-    private MedicineAdapter adapter;
+    private ExpandableMedicineAdapter adapter;
     private FirebaseMedicineHelper firebaseHelper;
+    private ImageView backArrow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +34,14 @@ public class MedicineListActivity extends BaseActivity {
             return;
         }
 
+        backArrow = findViewById(R.id.backArrow);
         recyclerView = findViewById(R.id.recyclerMedicines);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        backArrow.setOnClickListener(v -> {
+            startActivity(new Intent(MedicineListActivity.this, Dashboard.class));
+            finish();
+        });
 
         firebaseHelper = new FirebaseMedicineHelper();
         loadMedicinesFromFirebase();
@@ -54,7 +63,7 @@ public class MedicineListActivity extends BaseActivity {
                     }
                 }
                 
-                adapter = new MedicineAdapter(userMedicines);
+                adapter = new ExpandableMedicineAdapter(userMedicines);
                 recyclerView.setAdapter(adapter);
             }
 
@@ -63,7 +72,7 @@ public class MedicineListActivity extends BaseActivity {
                 Toast.makeText(MedicineListActivity.this, "Error loading medicines: " + error, Toast.LENGTH_SHORT).show();
                 // Fallback to local storage if Firebase fails
                 List<Medicine> localMedicines = MedicineRepository.getAll(MedicineListActivity.this);
-                adapter = new MedicineAdapter(localMedicines);
+                adapter = new ExpandableMedicineAdapter(localMedicines);
                 recyclerView.setAdapter(adapter);
             }
         });

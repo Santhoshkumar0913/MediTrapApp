@@ -22,7 +22,8 @@ public class CustomDaysFragment extends Fragment {
     private CheckBox cbMonday, cbTuesday, cbWednesday, cbThursday, cbFriday, cbSaturday, cbSunday;
     private Spinner spinnerFrequency;
     private Button btnContinue;
-    
+
+    // Listener interface to send selected data back to AddMedicine
     private OnCustomDaysSelectedListener listener;
 
     public interface OnCustomDaysSelectedListener {
@@ -36,11 +37,11 @@ public class CustomDaysFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_custom_days, container, false);
-        
+
         initializeViews(view);
-        setupClickListeners();
         setupFrequencySpinner();
-        
+        setupClickListeners();
+
         return view;
     }
 
@@ -57,6 +58,22 @@ public class CustomDaysFragment extends Fragment {
         btnContinue = view.findViewById(R.id.btnContinue);
     }
 
+    private void setupFrequencySpinner() {
+        String[] frequencyOptions = {
+                "Once a day",
+                "Twice a day",
+                "Three times a day"
+        };
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                getContext(),
+                android.R.layout.simple_spinner_item,
+                frequencyOptions
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerFrequency.setAdapter(adapter);
+    }
+
     private void setupClickListeners() {
         backArrowCustom.setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -67,32 +84,26 @@ public class CustomDaysFragment extends Fragment {
         btnContinue.setOnClickListener(v -> {
             List<String> selectedDays = getSelectedDays();
             String frequency = spinnerFrequency.getSelectedItem().toString();
-            
+
             if (selectedDays.isEmpty()) {
                 Toast.makeText(getContext(), "Please select at least one day", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
+
             if (listener != null) {
                 listener.onCustomDaysSelected(selectedDays, frequency);
             }
-            
+
+            // Go back to AddMedicine screen
             if (getActivity() != null) {
                 getActivity().onBackPressed();
             }
         });
     }
 
-    private void setupFrequencySpinner() {
-        String[] frequencyOptions = {"Once a day", "Twice a day", "Three times a day", "Every 4 hours", "Every 6 hours", "Every 8 hours", "Every 12 hours"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, frequencyOptions);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFrequency.setAdapter(adapter);
-    }
-
     private List<String> getSelectedDays() {
         List<String> selectedDays = new ArrayList<>();
-        
+
         if (cbMonday.isChecked()) selectedDays.add("Monday");
         if (cbTuesday.isChecked()) selectedDays.add("Tuesday");
         if (cbWednesday.isChecked()) selectedDays.add("Wednesday");
@@ -100,7 +111,7 @@ public class CustomDaysFragment extends Fragment {
         if (cbFriday.isChecked()) selectedDays.add("Friday");
         if (cbSaturday.isChecked()) selectedDays.add("Saturday");
         if (cbSunday.isChecked()) selectedDays.add("Sunday");
-        
+
         return selectedDays;
     }
 }

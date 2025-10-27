@@ -9,6 +9,8 @@ public class Medicine {
     private String dosage;
     private String startDate;
     private String endDate;
+    private String medicineType;
+    private String frequency;
     private List<String> customDays;
     private List<String> reminderTimes;
     private boolean reminderEnabled;
@@ -23,6 +25,8 @@ public class Medicine {
         this.reminderTimes = new ArrayList<>();
         this.reminderEnabled = true;
         this.taken = false;
+        this.frequency = "Once a day";
+        this.medicineType = "Unknown";
     }
 
     // Constructor for backward compatibility
@@ -34,6 +38,7 @@ public class Medicine {
         this.endDate = "";
         this.reminderTimes.add(time);
         this.taken = taken;
+        this.frequency = frequency;
     }
 
     // Getters and Setters
@@ -51,6 +56,12 @@ public class Medicine {
 
     public String getEndDate() { return endDate; }
     public void setEndDate(String endDate) { this.endDate = endDate; }
+
+    public String getFrequency() { return frequency; }
+    public void setFrequency(String frequency) { this.frequency = frequency; }
+
+    public String getMedicineType() { return medicineType; }
+    public void setMedicineType(String medicineType) { this.medicineType = medicineType; }
 
     public List<String> getCustomDays() { return customDays; }
     public void setCustomDays(List<String> customDays) { this.customDays = customDays; }

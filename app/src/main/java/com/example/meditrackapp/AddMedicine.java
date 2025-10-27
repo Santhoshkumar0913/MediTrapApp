@@ -50,16 +50,51 @@ public class AddMedicine extends BaseActivity {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
     private List<String> customDays = new ArrayList<>();
     private String customFrequency = "Once a day";
+    private String medicineType = "Unknown";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        android.util.Log.d("AddMedicine", "onCreate called");
         setContentView(R.layout.activity_add_medicine);
+        android.util.Log.d("AddMedicine", "setContentView called");
 
         initializeViews();
         setupClickListeners();
         setupDosageControls();
+        
+        // Read selected medicine type from intent (default to "Unknown")
+        Intent intent = getIntent();
+        if (intent != null) {
+            String typeExtra = intent.getStringExtra("medicineType");
+            if (typeExtra != null && !typeExtra.trim().isEmpty()) {
+                medicineType = typeExtra.trim();
+            }
+        }
+        android.util.Log.d("AddMedicine", "onCreate completed");
     }
+
+    private void updateCustomScheduleDisplay() {
+        TextView tvSelectedDays = findViewById(R.id.tvSelectedDays);
+
+        if (tvSelectedDays != null) {
+            if (customDays != null && !customDays.isEmpty()) {
+                StringBuilder scheduleText = new StringBuilder("Schedule: ");
+                scheduleText.append(String.join(", ", customDays));
+
+                if (customFrequency != null && !customFrequency.isEmpty()) {
+                    scheduleText.append(" — ").append(customFrequency);
+                }
+
+                tvSelectedDays.setVisibility(View.VISIBLE);
+                tvSelectedDays.setText(scheduleText.toString());
+            } else {
+                tvSelectedDays.setVisibility(View.GONE);
+            }
+        }
+    }
+
+
 
     private void initializeViews() {
         backArrow = findViewById(R.id.backArrow);
@@ -281,12 +316,8 @@ public class AddMedicine extends BaseActivity {
                 customDays = selectedDays;
                 customFrequency = frequency;
                 
-                // Update the custom button text to show selected days
-                if (!selectedDays.isEmpty()) {
-                    btnCustom.setText("Custom: " + String.join(", ", selectedDays));
-                }
-                
-                Toast.makeText(AddMedicine.this, "Custom schedule set: " + String.join(", ", selectedDays), Toast.LENGTH_SHORT).show();
+                // Update UI to show selected days
+                updateCustomScheduleDisplay();
             }
         });
         
@@ -326,6 +357,8 @@ public class AddMedicine extends BaseActivity {
         medicine.setStartDate(dateFormat.format(fromDate.getTime()));
         medicine.setEndDate(dateFormat.format(toDate.getTime()));
         medicine.setCustomDays(customDays);
+        medicine.setFrequency(customFrequency);
+        medicine.setMedicineType(medicineType);
         medicine.setUserId(currentUser.getUid());
         medicine.setUserEmail(currentUser.getEmail());
         medicine.setUserName(currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "User");

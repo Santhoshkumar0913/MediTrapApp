@@ -1,59 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:orientation="vertical"
     android:background="@drawable/background">
 
-    <!-- Back Arrow -->
-    <ImageView
-        android:id="@+id/backArrow"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:src="@drawable/ic_back"
-        android:contentDescription="Back"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Title -->
-    <TextView
-        android:id="@+id/titleMedicineType"
-        android:layout_width="wrap_content"
+    <!-- Header Section -->
+    <LinearLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Medicine Type"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#1E293B"
-        app:layout_constraintTop_toTopOf="@id/backArrow"
-        app:layout_constraintBottom_toBottomOf="@id/backArrow"
-        app:layout_constraintStart_toEndOf="@id/backArrow"
-        android:layout_marginStart="12dp"/>
+        android:orientation="horizontal"
+        android:padding="24dp"
+        android:gravity="center_vertical">
+
+        <!-- Back Arrow -->
+        <ImageView
+            android:id="@+id/backArrow"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_back"
+            android:contentDescription="Back"/>
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/titleMedicineType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Medicine Type"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1E293B"/>
+    </LinearLayout>
 
     <!-- Subtitle -->
     <TextView
         android:id="@+id/subtitleMedicineType"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:text="Select the type of medicine you're adding"
         android:textSize="14sp"
-        android:textColor="#64748B"
-        app:layout_constraintTop_toBottomOf="@id/backArrow"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        android:textColor="#64748B"/>
 
-    <!-- Medicine Types ScrollView -->
+    <!-- Scrollable Content -->
+
+    <!-- Submit Button -->
     <ScrollView
         android:id="@+id/scrollViewMedicineTypes"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/subtitleMedicineType"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btnSubmit"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="24dp">
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="40dp"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -65,51 +72,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:backgroundTint="#FFFFFF"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:padding="20dp">
 
                     <ImageView
-                        style="@style/MedicineIcon"
-                        android:src="@drawable/ic_tablet"
-                        android:contentDescription="Tablet icon"/>
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Tablet icon"
+                        android:src="@drawable/ic_tablet" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tablets"
+                            android:textColor="#1E293B"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="#1E293B"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="Pills, capsules, chewable tablets"
-                            android:textSize="12sp"
                             android:textColor="#64748B"
-                            android:layout_marginTop="2dp"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <CheckBox
                         android:id="@+id/cbTablets"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="#2563EB"/>
+                        android:buttonTint="#2563EB" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -118,51 +126,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:backgroundTint="#FFFFFF"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:padding="20dp">
 
                     <ImageView
-                        style="@style/MedicineIcon"
-                        android:src="@drawable/ic_liquid"
-                        android:contentDescription="Liquid icon"/>
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Liquid icon"
+                        android:src="@drawable/ic_liquid" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Liquids"
+                            android:textColor="#1E293B"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="#1E293B"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="Syrups, solutions, suspensions"
-                            android:textSize="12sp"
                             android:textColor="#64748B"
-                            android:layout_marginTop="2dp"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <CheckBox
                         android:id="@+id/cbLiquids"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="#2563EB"/>
+                        android:buttonTint="#2563EB" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -171,51 +180,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:backgroundTint="#FFFFFF"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:padding="20dp">
 
                     <ImageView
-                        style="@style/MedicineIcon"
-                        android:src="@drawable/ic_cream"
-                        android:contentDescription="Cream icon"/>
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Cream icon"
+                        android:src="@drawable/ic_cream" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Creams"
+                            android:textColor="#1E293B"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="#1E293B"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="Topical creams, ointments, gels"
-                            android:textSize="12sp"
                             android:textColor="#64748B"
-                            android:layout_marginTop="2dp"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <CheckBox
                         android:id="@+id/cbCreams"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="#2563EB"/>
+                        android:buttonTint="#2563EB" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -224,51 +234,52 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:backgroundTint="#FFFFFF"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:padding="20dp">
 
                     <ImageView
-                        style="@style/MedicineIcon"
-                        android:src="@drawable/ic_inhaler"
-                        android:contentDescription="Inhaler icon"/>
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Inhaler icon"
+                        android:src="@drawable/ic_inhaler" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Inhalers"
+                            android:textColor="#1E293B"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="#1E293B"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="MDI, powder inhalers, nebulizers"
-                            android:textSize="12sp"
                             android:textColor="#64748B"
-                            android:layout_marginTop="2dp"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <CheckBox
                         android:id="@+id/cbInhalers"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="#2563EB"/>
+                        android:buttonTint="#2563EB" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -276,72 +287,72 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="32dp"
+                android:backgroundTint="#FFFFFF"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:padding="20dp">
 
                     <ImageView
-                        style="@style/MedicineIcon"
-                        android:src="@drawable/ic_injection"
-                        android:contentDescription="Injection icon"/>
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Injection icon"
+                        android:src="@drawable/ic_injection" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
                         android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Injections"
+                            android:textColor="#1E293B"
                             android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="#1E293B"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="Injectable medicines, insulin pens"
-                            android:textSize="12sp"
                             android:textColor="#64748B"
-                            android:layout_marginTop="2dp"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <CheckBox
                         android:id="@+id/cbInjections"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:buttonTint="#2563EB"/>
+                        android:buttonTint="#2563EB" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- Submit Button -->
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Continue"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:backgroundTint="#2563EB"
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="24dp"
+                app:cornerRadius="12dp"/>
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- Submit Button -->
-    <Button
-        android:id="@+id/btnSubmit"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:text="Continue"
-        android:textAllCaps="false"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:backgroundTint="#2563EB"
-        android:textColor="#FFFFFF"
-        app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

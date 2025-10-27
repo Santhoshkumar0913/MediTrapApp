@@ -64,6 +64,24 @@ public class MedicineRepository {
         prefs(ctx).edit().remove(KEY_MEDICINES).apply();
     }
 
+    public static void updateMedicine(Context ctx, Medicine m) {
+        try {
+            JSONArray arr = getArray(ctx);
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject obj = arr.getJSONObject(i);
+                if (obj.optString("name").equals(m.getName())) {
+                    // Update the existing medicine
+                    obj.put("taken", m.isTaken());
+                    arr.put(i, obj);
+                    prefs(ctx).edit().putString(KEY_MEDICINES, arr.toString()).apply();
+                    return;
+                }
+            }
+        } catch (JSONException e) {
+            // ignore
+        }
+    }
+
     private static JSONArray getArray(Context ctx) throws JSONException {
         String json = prefs(ctx).getString(KEY_MEDICINES, "[]");
         return new JSONArray(json);

@@ -176,7 +176,20 @@
                 android:backgroundTint="#2563EB"
                 android:textColor="#FFFFFF"
                 app:cornerRadius="12dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="8dp" />
+
+            <!-- TextView to display selected days -->
+            <TextView
+                android:id="@+id/tvSelectedDays"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="14sp"
+                android:textColor="#2563EB"
+                android:padding="12dp"
+                android:background="#EFF6FF"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
 
             <!-- Fragment Container for Frequency Options -->
             <FrameLayout

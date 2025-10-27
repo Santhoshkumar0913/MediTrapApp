@@ -101,8 +101,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
         } else if (this instanceof MedicineType) {
             bottomNavigationView.setSelectedItemId(R.id.navigation_add);
-        } else if (this instanceof AddMedicine) {
-            bottomNavigationView.setSelectedItemId(R.id.navigation_add);
         } else if (this instanceof MedicineSchedule) {
             bottomNavigationView.setSelectedItemId(R.id.navigation_schedule);
         } else if (this instanceof Settings) {

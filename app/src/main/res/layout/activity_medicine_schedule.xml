@@ -85,11 +85,13 @@
 
                     <ImageView
                         android:id="@+id/imgNextMedicine"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_check_circle"
-                        android:layout_marginEnd="12dp"
-                        app:tint="#2563EB" />
+                        android:scaleType="fitCenter"
+                        android:adjustViewBounds="true"
+                        app:tint="@null" />
 
                     <LinearLayout
                         android:layout_width="0dp"

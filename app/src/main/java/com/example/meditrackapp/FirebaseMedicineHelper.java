@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class FirebaseMedicineHelper {
     private static final String TAG = "FirebaseMedicineHelper";
@@ -59,6 +60,8 @@ public class FirebaseMedicineHelper {
         medicineValues.put("dosage", medicine.getDosage());
         medicineValues.put("startDate", medicine.getStartDate());
         medicineValues.put("endDate", medicine.getEndDate());
+        medicineValues.put("medicineType", medicine.getMedicineType());
+        medicineValues.put("frequency", medicine.getFrequency());
         medicineValues.put("customDays", medicine.getCustomDays());
         medicineValues.put("reminderTimes", medicine.getReminderTimes());
         medicineValues.put("reminderEnabled", medicine.isReminderEnabled());
@@ -67,6 +70,10 @@ public class FirebaseMedicineHelper {
         medicineValues.put("userEmail", medicine.getUserEmail());
         medicineValues.put("userName", medicine.getUserName());
         
+        Log.d(TAG, "Saving medicine to Firebase: " + medicine.getName());
+        Log.d(TAG, "User ID: " + userId);
+        Log.d(TAG, "Medicine ID: " + medicineId);
+        
         databaseRef.child(MEDICINES_PATH)
                 .child(userId)
                 .child(medicineId)
@@ -74,12 +81,14 @@ public class FirebaseMedicineHelper {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Medicine added successfully to Firebase");
                         listener.onMedicineAdded(true, "Medicine added successfully");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Failed to add medicine to Firebase: " + e.getMessage());
                         listener.onMedicineAdded(false, "Failed to add medicine: " + e.getMessage());
                     }
                 });
@@ -106,16 +115,36 @@ public class FirebaseMedicineHelper {
                                 String dosage = snapshot.child("dosage").getValue(String.class);
                                 String startDate = snapshot.child("startDate").getValue(String.class);
                                 String endDate = snapshot.child("endDate").getValue(String.class);
+                                String frequency = snapshot.child("frequency").getValue(String.class);
+                                String medicineType = snapshot.child("medicineType").getValue(String.class);
+                                
+                                // Handle customDays as a simple list
                                 ArrayList<String> customDays = new ArrayList<>();
-                                if (snapshot.child("customDays").exists()) {
-                                    for (DataSnapshot daySnapshot : snapshot.child("customDays").getChildren()) {
-                                        customDays.add(daySnapshot.getValue(String.class));
+                                if (snapshot.hasChild("customDays")) {
+                                    Object customDaysObj = snapshot.child("customDays").getValue();
+                                    if (customDaysObj instanceof Map) {
+                                        // If it's stored as a map
+                                        Map<String, Object> customDaysMap = (Map<String, Object>) customDaysObj;
+                                        customDays.addAll(customDaysMap.values().stream()
+                                                .map(Object::toString)
+                                                .collect(Collectors.toList()));
+                                    } else if (customDaysObj instanceof List) {
+                                        // If it's stored as a list
+                                        customDays.addAll((List<String>) customDaysObj);
                                     }
                                 }
+                                
+                                // Handle reminderTimes as a simple list
                                 ArrayList<String> reminderTimes = new ArrayList<>();
-                                if (snapshot.child("reminderTimes").exists()) {
-                                    for (DataSnapshot timeSnapshot : snapshot.child("reminderTimes").getChildren()) {
-                                        reminderTimes.add(timeSnapshot.getValue(String.class));
+                                if (snapshot.hasChild("reminderTimes")) {
+                                    Object reminderTimesObj = snapshot.child("reminderTimes").getValue();
+                                    if (reminderTimesObj instanceof Map) {
+                                        Map<String, Object> reminderTimesMap = (Map<String, Object>) reminderTimesObj;
+                                        reminderTimes.addAll(reminderTimesMap.values().stream()
+                                                .map(Object::toString)
+                                                .collect(Collectors.toList()));
+                                    } else if (reminderTimesObj instanceof List) {
+                                        reminderTimes.addAll((List<String>) reminderTimesObj);
                                     }
                                 }
                                 boolean reminderEnabled = snapshot.child("reminderEnabled").getValue(Boolean.class);
@@ -130,6 +159,8 @@ public class FirebaseMedicineHelper {
                                 medicine.setDosage(dosage);
                                 medicine.setStartDate(startDate);
                                 medicine.setEndDate(endDate);
+                                medicine.setFrequency(frequency != null ? frequency : "Once a day");
+                                medicine.setMedicineType(medicineType != null ? medicineType : "Unknown");
                                 medicine.setUserId(userId);
                                 medicine.setUserEmail(userEmail);
                                 medicine.setUserName(userName);
@@ -169,6 +200,8 @@ public class FirebaseMedicineHelper {
         medicineValues.put("dosage", medicine.getDosage());
         medicineValues.put("startDate", medicine.getStartDate());
         medicineValues.put("endDate", medicine.getEndDate());
+        medicineValues.put("medicineType", medicine.getMedicineType());
+        medicineValues.put("frequency", medicine.getFrequency());
         medicineValues.put("customDays", medicine.getCustomDays());
         medicineValues.put("reminderTimes", medicine.getReminderTimes());
         medicineValues.put("reminderEnabled", medicine.isReminderEnabled());
