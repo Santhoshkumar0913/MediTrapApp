@@ -7,7 +7,7 @@ import android.widget.ImageView;
 
 public class Dashboard extends BaseActivity {
 
-    private Button btnMedicineList, btnAddMedicine, btnHistory, btnEmergencyInfo, btnProfileSettings;
+    private Button btnMedicineList, btnAddMedicine, btnHistory, btnNearByLocation, btnProfileSettings;
     private ImageView backArrowDashboard;
 
     @Override
@@ -19,7 +19,7 @@ public class Dashboard extends BaseActivity {
         btnMedicineList = findViewById(R.id.btnMedicineList);
         btnAddMedicine = findViewById(R.id.btnAddMedicine);
         btnHistory = findViewById(R.id.btnHistory);
-        btnEmergencyInfo = findViewById(R.id.btnEmergencyInfo);
+        btnNearByLocation = findViewById(R.id.btnNearByLocation);
         btnProfileSettings = findViewById(R.id.btnProfileSettings);
         backArrowDashboard = findViewById(R.id.backArrowDashboard);
 
@@ -38,6 +38,8 @@ public class Dashboard extends BaseActivity {
                 startActivity(new Intent(Dashboard.this, Settings.class)));
         btnMedicineList.setOnClickListener(v ->
                 startActivity(new Intent(Dashboard.this, MedicineSchedule.class)));
+        btnNearByLocation.setOnClickListener(v ->
+                startActivity(new Intent(Dashboard.this, NearByLocationActivity.class)));
 
     }
 }

@@ -89,10 +89,10 @@
 
     <!-- Emergency Info Button -->
     <Button
-        android:id="@+id/btnEmergencyInfo"
+        android:id="@+id/btnNearByLocation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Emergency Information"
+        android:text="Location"
         android:textAllCaps="false"
         android:backgroundTint="#2563EB"
         android:textColor="#FFFFFF"
@@ -110,7 +110,7 @@
         android:textAllCaps="false"
         android:backgroundTint="#2563EB"
         android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/btnEmergencyInfo"
+        app:layout_constraintTop_toBottomOf="@id/btnNearByLocation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />

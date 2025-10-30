@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -361,8 +362,26 @@ public class AddMedicine extends BaseActivity {
         medicine.setMedicineType(medicineType);
         medicine.setUserId(currentUser.getUid());
         medicine.setUserEmail(currentUser.getEmail());
-        medicine.setUserName(currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "User");
         
+        // Get actual user name from Realtime Database under `users/{uid}`
+        com.google.firebase.database.FirebaseDatabase.getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
+                .getReference("users")
+                .child(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    String userName = snapshot.child("name").getValue(String.class);
+                    medicine.setUserName(userName != null ? userName : "User");
+                    saveMedicineToFirebase(medicine);
+                })
+                .addOnFailureListener(e -> {
+                    medicine.setUserName("User");
+                    saveMedicineToFirebase(medicine);
+                });
+        
+        return; // Exit here as we'll continue in the callback
+    }
+    
+    private void saveMedicineToFirebase(Medicine medicine) {
         // Add reminder times if enabled
         if (switchReminder.isChecked()) {
             List<String> validTimes = new ArrayList<>();
@@ -373,7 +392,7 @@ public class AddMedicine extends BaseActivity {
             }
             medicine.setReminderTimes(validTimes);
         }
-
+        
         // Save to Firebase
         FirebaseMedicineHelper firebaseHelper = new FirebaseMedicineHelper();
         firebaseHelper.addMedicine(medicine, new FirebaseMedicineHelper.OnMedicineAddedListener() {

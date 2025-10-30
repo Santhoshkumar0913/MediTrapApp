@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.regex.Pattern;
 
@@ -134,6 +135,15 @@ public class signup extends AppCompatActivity {
                 db.collection("Users").document(uid).set(user)
                         .addOnFailureListener(e -> {
                             Toast.makeText(signup.this, "Error saving user data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+                        
+                // Also save user data to Realtime Database for better integration
+                FirebaseDatabase.getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
+                        .getReference("users")
+                        .child(uid)
+                        .setValue(user)
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(signup.this, "Error saving to Realtime DB: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         });
 
                 // 🔹 Show success message & redirect immediately

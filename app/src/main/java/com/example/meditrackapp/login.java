@@ -9,6 +9,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 
 public class login extends AppCompatActivity {
 
@@ -41,6 +45,42 @@ public class login extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
+                            // Ensure user profile exists in Realtime Database under `users/{uid}`
+                            String uid = mAuth.getCurrentUser().getUid();
+                            DatabaseReference userRef = FirebaseDatabase.getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
+                                    .getReference("users")
+                                    .child(uid);
+
+                            userRef.get().addOnSuccessListener(snapshot -> {
+                                if (!snapshot.exists()) {
+                                    // Try to read from Firestore `Users` for full profile
+                                    FirebaseFirestore.getInstance()
+                                            .collection("Users")
+                                            .document(uid)
+                                            .get()
+                                            .addOnSuccessListener(doc -> {
+                                                if (doc.exists()) {
+                                                    User user = new User(
+                                                            uid,
+                                                            doc.getString("name"),
+                                                            doc.getString("age"),
+                                                            doc.getString("gender"),
+                                                            doc.getString("familyPhone"),
+                                                            doc.getString("personalPhone"),
+                                                            doc.getString("email")
+                                                    );
+                                                    userRef.setValue(user);
+                                                } else {
+                                                    // Minimal backfill if Firestore doc is missing
+                                                    java.util.Map<String, Object> minimal = new java.util.HashMap<>();
+                                                    minimal.put("name", mAuth.getCurrentUser().getDisplayName());
+                                                    minimal.put("email", mAuth.getCurrentUser().getEmail());
+                                                    userRef.setValue(minimal);
+                                                }
+                                            });
+                                }
+                            });
+
                             Toast.makeText(login.this, "Login Successful!", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(login.this, Dashboard.class); //  Go to Dashboard
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

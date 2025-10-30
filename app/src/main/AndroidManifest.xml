@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -13,6 +15,7 @@
         android:roundIcon="@mipmap/ic_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediTrackApp">
+
         <activity
             android:name=".HistoryMedicine"
             android:exported="false" />
@@ -37,6 +40,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <!-- Your activities here -->
         <activity
             android:name=".Dashboard"
@@ -49,6 +53,15 @@
             android:exported="false" />
         <activity
             android:name=".login"
+            android:exported="false" />
+
+        <!-- Extra location -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyATND4k8tfID_G2suoKxoMqz5cdW825SrQ" />
+
+        <activity
+            android:name=".NearByLocationActivity"
             android:exported="false" />
     </application>
 
