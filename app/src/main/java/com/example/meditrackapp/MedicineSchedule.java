@@ -157,9 +157,37 @@ public class MedicineSchedule extends BaseActivity {
     }
 
     private boolean isMedicineScheduledForToday(Medicine medicine, String today) {
-        // For now, assume all medicines are scheduled daily
-        // In a real app, you'd check the medicine's schedule (start date, end date, custom days)
-        return true; // Simplified for demo
+        // Check if medicine has reminder times
+        if (medicine.getReminderTimes() == null || medicine.getReminderTimes().isEmpty()) {
+            return false;
+        }
+        
+        // Get current day of week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+        Calendar calendar = Calendar.getInstance();
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        String currentDay = getDayStringFromCalendar(dayOfWeek);
+        
+        // Check if medicine is scheduled for today based on custom days
+        List<String> customDays = medicine.getCustomDays();
+        if (customDays != null && !customDays.isEmpty()) {
+            return customDays.contains(currentDay);
+        }
+        
+        // If no custom days are set, assume it's a daily medicine
+        return true;
+    }
+    
+    private String getDayStringFromCalendar(int dayOfWeek) {
+        switch (dayOfWeek) {
+            case Calendar.SUNDAY: return "Sunday";
+            case Calendar.MONDAY: return "Monday";
+            case Calendar.TUESDAY: return "Tuesday";
+            case Calendar.WEDNESDAY: return "Wednesday";
+            case Calendar.THURSDAY: return "Thursday";
+            case Calendar.FRIDAY: return "Friday";
+            case Calendar.SATURDAY: return "Saturday";
+            default: return "";
+        }
     }
 
     private void findNextMedicine() {
@@ -262,7 +290,7 @@ public class MedicineSchedule extends BaseActivity {
         ImageView imgMedicineType = itemView.findViewById(R.id.imgMedicineType);
         TextView tvMedicineName = itemView.findViewById(R.id.tvMedicineName);
         TextView tvMedicineDetails = itemView.findViewById(R.id.tvMedicineDetails);
-        ImageView imgStatus = itemView.findViewById(R.id.imgStatus);
+        TextView tvMedicineStatus = itemView.findViewById(R.id.tvMedicineStatus);
         
         // Set medicine data
         tvMedicineName.setText(medicine.getName());
@@ -274,13 +302,17 @@ public class MedicineSchedule extends BaseActivity {
         imgMedicineType.setImageResource(getMedicineTypeIcon(medicine.getName()));
         imgMedicineType.setColorFilter(null); // Remove any color filter
         
-        // Set status icon
-        if (medicine.isTaken()) {
-            imgStatus.setImageResource(R.drawable.ic_check_circle);
-            imgStatus.setColorFilter(getResources().getColor(R.color.green));
+        // Set status text and color
+        String status = medicine.getStatus();
+        tvMedicineStatus.setText(status);
+        
+        if ("Taken".equals(status)) {
+            tvMedicineStatus.setTextColor(getResources().getColor(R.color.green));
+        } else if ("Skipped".equals(status)) {
+            tvMedicineStatus.setTextColor(getResources().getColor(R.color.gray));
         } else {
-            imgStatus.setImageResource(R.drawable.ic_check_circle);
-            imgStatus.setColorFilter(getResources().getColor(R.color.gray));
+            // Default "Next" status
+            tvMedicineStatus.setTextColor(getResources().getColor(R.color.blue));
         }
         
         return itemView;
@@ -288,28 +320,36 @@ public class MedicineSchedule extends BaseActivity {
 
     private void markMedicineAsTaken(Medicine medicine) {
         medicine.setTaken(true);
+        medicine.setStatus("Taken");
+        
+        Toast.makeText(MedicineSchedule.this, medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
+        updateMedicineInFirebase(medicine);
+    }
+
+    private void skipMedicine(Medicine medicine) {
+        medicine.setStatus("Skipped");
+        Toast.makeText(this, medicine.getName() + " skipped", Toast.LENGTH_SHORT).show();
         
         // Update in Firebase
+        updateMedicineInFirebase(medicine);
+    }
+    
+    private void updateMedicineInFirebase(Medicine medicine) {
         firebaseHelper.updateMedicine(medicine, new FirebaseMedicineHelper.OnMedicineAddedListener() {
             @Override
             public void onMedicineAdded(boolean success, String message) {
                 runOnUiThread(() -> {
                     if (success) {
-                        Toast.makeText(MedicineSchedule.this, medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
+                        // Update UI after successful update
+                        updateUI();
                     } else {
                         Toast.makeText(MedicineSchedule.this, "Error updating medicine: " + message, Toast.LENGTH_SHORT).show();
                         // Fallback to local update
                         MedicineRepository.updateMedicine(MedicineSchedule.this, medicine);
+                        updateUI();
                     }
-                    updateUI();
                 });
             }
         });
-    }
-
-    private void skipMedicine(Medicine medicine) {
-        Toast.makeText(this, medicine.getName() + " skipped", Toast.LENGTH_SHORT).show();
-        // Remove from today's list or mark as skipped
-        updateUI();
     }
 }

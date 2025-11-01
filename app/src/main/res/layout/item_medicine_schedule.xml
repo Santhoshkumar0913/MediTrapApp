@@ -49,12 +49,14 @@
                 android:textColor="#64748B" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imgStatus"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_check_circle"
-            android:layout_marginStart="8dp"
-            app:tint="#94A3B8" />
+        <TextView
+            android:id="@+id/tvMedicineStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#2563EB"
+            android:layout_marginStart="8dp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -18,6 +18,7 @@ public class Medicine {
     private String userId;
     private String userEmail;
     private String userName;
+    private String status = "Next"; // Default status is "Next"
 
     // Default constructor for Firebase
     public Medicine() {
@@ -62,6 +63,9 @@ public class Medicine {
 
     public String getMedicineType() { return medicineType; }
     public void setMedicineType(String medicineType) { this.medicineType = medicineType; }
+    
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public List<String> getCustomDays() { return customDays; }
     public void setCustomDays(List<String> customDays) { this.customDays = customDays; }
