@@ -1,30 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="@drawable/background"
     tools:context=".NearByLocationActivity">
 
+    <!-- Back Arrow -->
+    <ImageView
+        android:id="@+id/backArrowLocation"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@drawable/ic_back"
+        android:contentDescription="Back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Title -->
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/locationTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Location"
+        android:textColor="#1E293B"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/backArrowLocation"
+        app:layout_constraintStart_toEndOf="@id/backArrowLocation"
+        app:layout_constraintTop_toTopOf="@id/backArrowLocation" />
+
+    <!-- Subtitle -->
+    <TextView
+        android:id="@+id/locationSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:text="Your Current Location"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:gravity="center"/>
+        android:textColor="#1E293B"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backArrowLocation" />
 
+    <!-- Location Card -->
     <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
+        android:id="@+id/locationCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="16dp"
         app:cardCornerRadius="12dp"
-        app:cardElevation="6dp">
+        app:cardElevation="6dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationSubtitle">
 
         <TextView
             android:id="@+id/tvCurrentLocation"
@@ -36,13 +70,20 @@
             android:textColor="@android:color/black"/>
     </androidx.cardview.widget.CardView>
 
+    <!-- Find Shops Button -->
     <Button
         android:id="@+id/btnFindMedicalShops"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:text="Find Nearby Medical Shops"
+        android:textAllCaps="false"
         android:padding="12dp"
         android:textSize="16sp"
         android:backgroundTint="#2563EB"
-        android:textColor="#FFFFFF" />
-</LinearLayout>
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/locationCard" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
