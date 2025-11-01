@@ -1,6 +1,9 @@
 package com.example.meditrackapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,6 +25,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import android.os.Handler;
+import android.os.Looper;
 
 public class MedicineSchedule extends BaseActivity {
 
@@ -36,8 +43,32 @@ public class MedicineSchedule extends BaseActivity {
     private CardView cardEmptyState;
     
     private List<Medicine> todaysMedicines = new ArrayList<>();
-    private Medicine nextMedicine = null;
+    private static class Dose {
+        Medicine medicine;
+        String time; // formatted like "h:mm a"
+        String status; // Next/Taken/Skipped
+        String key; // medicineId + date + time
+    }
+    private final List<Dose> todaysDoses = new ArrayList<>();
+    private Dose nextDose = null;
     private FirebaseMedicineHelper firebaseHelper;
+
+    // Periodic polling to detect dose windows
+    private final Handler pollHandler = new Handler(Looper.getMainLooper());
+    private final Runnable pollTask = new Runnable() {
+        @Override
+        public void run() {
+            // Poll all doses to see if any just entered the 30s window
+            for (Dose d : todaysDoses) {
+                checkDoseTime(d);
+            }
+            // Recompute next dose and refresh header minimally
+            findNextDose();
+            if (!isFinishing()) {
+                pollHandler.postDelayed(this, 5000); // every 5 seconds
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +87,25 @@ public class MedicineSchedule extends BaseActivity {
         initializeViews();
         setupClickListeners();
         loadTodaysMedicines();
+        ensureNotificationPermission();
         updateUI();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh list so newly added or edited medicines appear
+        loadTodaysMedicines();
+        // Start polling
+        pollHandler.removeCallbacks(pollTask);
+        pollHandler.postDelayed(pollTask, 1000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Stop polling when not visible
+        pollHandler.removeCallbacks(pollTask);
     }
 
     private void initializeViews() {
@@ -83,14 +132,14 @@ public class MedicineSchedule extends BaseActivity {
         });
 
         btnMarkAsTaken.setOnClickListener(v -> {
-            if (nextMedicine != null) {
-                markMedicineAsTaken(nextMedicine);
+            if (nextDose != null) {
+                markDoseAsTaken(nextDose);
             }
         });
 
         btnSkip.setOnClickListener(v -> {
-            if (nextMedicine != null) {
-                skipMedicine(nextMedicine);
+            if (nextDose != null) {
+                skipDose(nextDose);
             }
         });
     }
@@ -122,8 +171,9 @@ public class MedicineSchedule extends BaseActivity {
                     }
                 }
                 
-                // Find next medicine
-                findNextMedicine();
+                // Build doses and find next
+                buildTodaysDoses();
+                findNextDose();
                 updateUI();
             }
 
@@ -144,8 +194,9 @@ public class MedicineSchedule extends BaseActivity {
                     }
                 }
                 
-                // Find next medicine
-                findNextMedicine();
+                // Build doses and find next
+                buildTodaysDoses();
+                findNextDose();
                 updateUI();
             }
         });
@@ -157,23 +208,34 @@ public class MedicineSchedule extends BaseActivity {
     }
 
     private boolean isMedicineScheduledForToday(Medicine medicine, String today) {
-        // Check if medicine has reminder times
-        if (medicine.getReminderTimes() == null || medicine.getReminderTimes().isEmpty()) {
-            return false;
-        }
-        
-        // Get current day of week (1 = Sunday, 2 = Monday, ..., 7 = Saturday)
+        // Must have at least one reminder time
+        if (medicine.getReminderTimes() == null || medicine.getReminderTimes().isEmpty()) return false;
+
+        // Determine today's day in multiple forms
         Calendar calendar = Calendar.getInstance();
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        String currentDay = getDayStringFromCalendar(dayOfWeek);
-        
-        // Check if medicine is scheduled for today based on custom days
+        String full = getDayStringFromCalendar(dayOfWeek); // e.g., Monday
+        String short3 = full.length() >= 3 ? full.substring(0, 3) : full; // e.g., Mon
+
         List<String> customDays = medicine.getCustomDays();
         if (customDays != null && !customDays.isEmpty()) {
-            return customDays.contains(currentDay);
+            for (String d : customDays) {
+                if (d == null) continue;
+                String dd = d.trim();
+                if (dd.equalsIgnoreCase(full) || dd.equalsIgnoreCase(short3)) {
+                    return true;
+                }
+                // Accept numeric 1-7 (1=Sunday)
+                if (dd.matches("[1-7]")) {
+                    int n = Integer.parseInt(dd);
+                    if (n == dayOfWeek) return true;
+                }
+            }
+            // Provided days but none match today
+            return false;
         }
-        
-        // If no custom days are set, assume it's a daily medicine
+
+        // No custom days → treat as daily
         return true;
     }
     
@@ -190,23 +252,71 @@ public class MedicineSchedule extends BaseActivity {
         }
     }
 
-    private void findNextMedicine() {
-        nextMedicine = null;
-        
-        if (!todaysMedicines.isEmpty()) {
-            // Find the next medicine based on time
-            // For simplicity, just take the first one
-            nextMedicine = todaysMedicines.get(0);
+    private void buildTodaysDoses() {
+        todaysDoses.clear();
+        if (todaysMedicines.isEmpty()) return;
+
+        String todayKey = getTodayDateString();
+        for (Medicine med : todaysMedicines) {
+            List<String> times = med.getReminderTimes();
+            if (times == null || times.isEmpty()) continue;
+            for (String time : times) {
+                Dose d = new Dose();
+                d.medicine = med;
+                d.time = time;
+                d.key = buildDoseKey(med.getId(), todayKey, time);
+                d.status = getStoredDoseStatus(d.key);
+                todaysDoses.add(d);
+            }
+        }
+    }
+
+    private void findNextDose() {
+        nextDose = null;
+        if (todaysDoses.isEmpty()) return;
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            Calendar now = Calendar.getInstance();
+            long nowMillis = now.getTimeInMillis();
+
+            long bestDelta = Long.MAX_VALUE;
+            Dose best = null;
+
+            for (Dose d : todaysDoses) {
+                if ("Taken".equals(d.status) || "Skipped".equals(d.status)) continue;
+                Date medTime = sdf.parse(d.time);
+                if (medTime == null) continue;
+
+                Calendar medCal = Calendar.getInstance();
+                medCal.setTime(medTime);
+                medCal.set(Calendar.YEAR, now.get(Calendar.YEAR));
+                medCal.set(Calendar.MONTH, now.get(Calendar.MONTH));
+                medCal.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
+
+                long delta = medCal.getTimeInMillis() - nowMillis;
+                if (delta >= 0 && delta < bestDelta) {
+                    bestDelta = delta;
+                    best = d;
+                }
+            }
+
+            nextDose = best;
+        } catch (Exception e) {
+            nextDose = null;
         }
     }
 
     private void updateUI() {
-        if (nextMedicine != null) {
+        // Always recompute next based on current dose statuses and time
+        findNextDose();
+
+        if (nextDose != null) {
             // Show next medicine
-            tvNextTime.setText(getNextMedicineTime());
-            tvNextMedicineName.setText(nextMedicine.getName());
-            tvNextMedicineDosage.setText(nextMedicine.getDosage());
-            imgNextMedicine.setImageResource(getMedicineTypeIcon(nextMedicine.getName()));
+            tvNextTime.setText(nextDose.time);
+            tvNextMedicineName.setText(nextDose.medicine.getName());
+            tvNextMedicineDosage.setText(nextDose.medicine.getDosage());
+            imgNextMedicine.setImageResource(getMedicineTypeIcon(nextDose.medicine.getName()));
             imgNextMedicine.setColorFilter(null); // Remove any color filter
             
             btnMarkAsTaken.setVisibility(View.VISIBLE);
@@ -226,18 +336,11 @@ public class MedicineSchedule extends BaseActivity {
         updateMedicineList();
     }
 
-    private String getNextMedicineTime() {
-        if (nextMedicine != null && !nextMedicine.getReminderTimes().isEmpty()) {
-            return nextMedicine.getReminderTimes().get(0);
-        }
-        return "12:00 PM";
-    }
+    private String getNextMedicineTime() { return nextDose != null ? nextDose.time : "12:00 PM"; }
 
     private int getMedicineTypeIcon(String medicineName) {
         // Get medicine type from the medicine object
-        Medicine medicine = (medicineName != null && medicineName.equals(nextMedicine != null ? nextMedicine.getName() : "")) 
-            ? nextMedicine 
-            : getMedicineByName(medicineName);
+        Medicine medicine = getMedicineByName(medicineName);
             
         if (medicine != null && medicine.getMedicineType() != null) {
             String type = medicine.getMedicineType().toLowerCase();
@@ -271,19 +374,66 @@ public class MedicineSchedule extends BaseActivity {
     private void updateMedicineList() {
         medicineList.removeAllViews();
         
-        if (todaysMedicines.isEmpty()) {
+        if (todaysDoses.isEmpty()) {
             cardEmptyState.setVisibility(View.VISIBLE);
         } else {
             cardEmptyState.setVisibility(View.GONE);
             
-            for (Medicine medicine : todaysMedicines) {
-                View medicineItem = createMedicineItem(medicine);
+            for (Dose d : todaysDoses) {
+                View medicineItem = createDoseItem(d);
                 medicineList.addView(medicineItem);
+                
+                // ID is already set in the updateMedicineList method
+                
+                // Check if it's time for this medicine and show notification if needed
+                checkDoseTime(d);
             }
         }
     }
+    
+    private void checkDoseTime(Dose d) {
+        // Skip if dose is already taken or skipped
+        if ("Taken".equals(d.status) || "Skipped".equals(d.status)) return;
+        // Do not trigger again if already fired for this dose
+        if (hasDoseFired(d.key)) return;
+        
+        try {
+            // Get current time
+            Calendar now = Calendar.getInstance();
+            
+            // Get the first reminder time
+            if (d.time == null || d.time.isEmpty()) return;
+            
+            // Parse medicine time
+            SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            Date medicineTime = sdf.parse(d.time);
+            
+            // Create a calendar for medicine time
+            Calendar medCal = Calendar.getInstance();
+            medCal.setTime(medicineTime);
+            
+            // Set medicine time to today
+            medCal.set(Calendar.YEAR, now.get(Calendar.YEAR));
+            medCal.set(Calendar.MONTH, now.get(Calendar.MONTH));
+            medCal.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
+            
+            // Trigger only within ±30 seconds around the scheduled time
+            long nowMs = now.getTimeInMillis();
+            long center = medCal.getTimeInMillis();
+            long start = center - 30_000L;
+            long end = center + 30_000L;
+            if (nowMs >= start && nowMs <= end) {
+                // Show notification once for this dose
+                MedicineReminderService reminderService = new MedicineReminderService(this);
+                reminderService.showMedicineReminder(d.medicine, d.time);
+                markDoseFired(d.key);
+            }
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
-    private View createMedicineItem(Medicine medicine) {
+    private View createDoseItem(Dose d) {
         LayoutInflater inflater = LayoutInflater.from(this);
         View itemView = inflater.inflate(R.layout.item_medicine_schedule, medicineList, false);
         
@@ -293,17 +443,15 @@ public class MedicineSchedule extends BaseActivity {
         TextView tvMedicineStatus = itemView.findViewById(R.id.tvMedicineStatus);
         
         // Set medicine data
-        tvMedicineName.setText(medicine.getName());
-        
-        String time = medicine.getReminderTimes().isEmpty() ? "12:00 PM" : medicine.getReminderTimes().get(0);
-        tvMedicineDetails.setText(medicine.getDosage() + " • " + time);
+        tvMedicineName.setText(d.medicine.getName());
+        tvMedicineDetails.setText(d.medicine.getDosage() + " • " + d.time);
         
         // Set medicine type icon
-        imgMedicineType.setImageResource(getMedicineTypeIcon(medicine.getName()));
+        imgMedicineType.setImageResource(getMedicineTypeIcon(d.medicine.getName()));
         imgMedicineType.setColorFilter(null); // Remove any color filter
         
         // Set status text and color
-        String status = medicine.getStatus();
+        String status = d.status;
         tvMedicineStatus.setText(status);
         
         if ("Taken".equals(status)) {
@@ -318,20 +466,22 @@ public class MedicineSchedule extends BaseActivity {
         return itemView;
     }
 
-    private void markMedicineAsTaken(Medicine medicine) {
-        medicine.setTaken(true);
-        medicine.setStatus("Taken");
-        
-        Toast.makeText(MedicineSchedule.this, medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
-        updateMedicineInFirebase(medicine);
+    private void markDoseAsTaken(Dose d) {
+        storeDoseStatus(d.key, "Taken");
+        d.status = "Taken";
+        Toast.makeText(MedicineSchedule.this, d.medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
+        MedicineReminderService.stopRingtone();
+        MedicineReminderService.cancelNotification(this);
+        updateUI();
     }
 
-    private void skipMedicine(Medicine medicine) {
-        medicine.setStatus("Skipped");
-        Toast.makeText(this, medicine.getName() + " skipped", Toast.LENGTH_SHORT).show();
-        
-        // Update in Firebase
-        updateMedicineInFirebase(medicine);
+    private void skipDose(Dose d) {
+        storeDoseStatus(d.key, "Skipped");
+        d.status = "Skipped";
+        Toast.makeText(this, d.medicine.getName() + " skipped", Toast.LENGTH_SHORT).show();
+        MedicineReminderService.stopRingtone();
+        MedicineReminderService.cancelNotification(this);
+        updateUI();
     }
     
     private void updateMedicineInFirebase(Medicine medicine) {
@@ -351,5 +501,41 @@ public class MedicineSchedule extends BaseActivity {
                 });
             }
         });
+    }
+
+    private void ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
+    }
+
+    // ---- Dose status persistence (per day, per time) ----
+    private String buildDoseKey(String medicineId, String dateKey, String time) {
+        return "dose:" + medicineId + ":" + dateKey + ":" + time;
+    }
+
+    private String getStoredDoseStatus(String key) {
+        return getSharedPreferences("dose_status", MODE_PRIVATE).getString(key, "Next");
+    }
+
+    private void storeDoseStatus(String key, String status) {
+        getSharedPreferences("dose_status", MODE_PRIVATE)
+                .edit()
+                .putString(key, status)
+                .apply();
+    }
+
+    private boolean hasDoseFired(String key) {
+        return getSharedPreferences("dose_status", MODE_PRIVATE)
+                .getBoolean("fired:" + key, false);
+    }
+
+    private void markDoseFired(String key) {
+        getSharedPreferences("dose_status", MODE_PRIVATE)
+                .edit()
+                .putBoolean("fired:" + key, true)
+                .apply();
     }
 }

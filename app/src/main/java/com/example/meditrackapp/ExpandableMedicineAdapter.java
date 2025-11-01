@@ -61,6 +61,18 @@ public class ExpandableMedicineAdapter extends RecyclerView.Adapter<ExpandableMe
         holder.tvDuration.setText(getDurationText(m));
         holder.tvStartDate.setText(m.getStartDate() != null && !m.getStartDate().isEmpty() ? m.getStartDate() : "Not set");
         holder.tvEndDate.setText(m.getEndDate() != null && !m.getEndDate().isEmpty() ? m.getEndDate() : "Not set");
+
+        // Bind times list in expanded section
+        if (m.getReminderTimes() != null && !m.getReminderTimes().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < m.getReminderTimes().size(); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append(m.getReminderTimes().get(i));
+            }
+            holder.tvTimes.setText(sb.toString());
+        } else {
+            holder.tvTimes.setText("--");
+        }
         
         // Toggle expanded state
         holder.detailsSection.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
@@ -120,6 +132,7 @@ public class ExpandableMedicineAdapter extends RecyclerView.Adapter<ExpandableMe
         TextView tvDuration;
         TextView tvStartDate;
         TextView tvEndDate;
+        TextView tvTimes;
         View detailsSection;
         View headerSection;
 
@@ -134,6 +147,7 @@ public class ExpandableMedicineAdapter extends RecyclerView.Adapter<ExpandableMe
             tvDuration = itemView.findViewById(R.id.tvDuration);
             tvStartDate = itemView.findViewById(R.id.tvStartDate);
             tvEndDate = itemView.findViewById(R.id.tvEndDate);
+            tvTimes = itemView.findViewById(R.id.tvTimes);
             detailsSection = itemView.findViewById(R.id.detailsSection);
             headerSection = itemView.findViewById(R.id.headerSection);
         }
