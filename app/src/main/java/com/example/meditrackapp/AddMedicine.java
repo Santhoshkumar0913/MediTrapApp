@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -13,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Switch;
 
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
@@ -95,8 +95,6 @@ public class AddMedicine extends BaseActivity {
         }
     }
 
-
-
     private void initializeViews() {
         backArrow = findViewById(R.id.backArrow);
         etMedicineName = findViewById(R.id.etMedicineName);
@@ -130,11 +128,8 @@ public class AddMedicine extends BaseActivity {
         });
 
         btnSaveMedicine.setOnClickListener(v -> saveMedicine());
-
         btnAddAnotherTime.setOnClickListener(v -> addNewReminderTime());
-
         btnCustom.setOnClickListener(v -> showCustomDaysFragment());
-
         btnFromDate.setOnClickListener(v -> showDatePicker(true));
         btnToDate.setOnClickListener(v -> showDatePicker(false));
 
@@ -142,7 +137,6 @@ public class AddMedicine extends BaseActivity {
             updateReminderVisibility(isChecked);
         });
     }
-
     private void setupDosageControls() {
         btnDecrease.setOnClickListener(v -> {
             int currentDosage = Integer.parseInt(etDosage.getText().toString());
@@ -195,6 +189,9 @@ public class AddMedicine extends BaseActivity {
         tvTime.setOnClickListener(v -> showTimePicker(tvTime, cardId));
         btnDelete.setOnClickListener(v -> removeReminderTime(card, cardId));
         
+        // Store the delete button reference for later use
+        card.setTag(R.id.btnDeleteTime, btnDelete);
+        
         return card;
     }
 
@@ -217,12 +214,20 @@ public class AddMedicine extends BaseActivity {
                         deleteBtn.setVisibility(View.VISIBLE);
                     }
                 } else {
-                    ImageView deleteBtn = findViewById(getDeleteButtonId(cardId));
-                    if (deleteBtn != null) {
-                        deleteBtn.setVisibility(View.VISIBLE);
+                    // For dynamically added cards, get the delete button from the parent card's tag
+                    ViewParent parent = textView.getParent();
+                    while (parent != null && !(parent instanceof CardView)) {
+                        parent = parent.getParent();
+                    }
+                    
+                    if (parent != null) {
+                        CardView card = (CardView) parent;
+                        ImageView deleteBtn = (ImageView) card.getTag(R.id.btnDeleteTime);
+                        if (deleteBtn != null) {
+                            deleteBtn.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
-                
                 // Add to reminder times list
                 updateReminderTimesList(cardId, time);
             },
@@ -244,17 +249,12 @@ public class AddMedicine extends BaseActivity {
         return sdf.format(calendar.getTime());
     }
 
-    private int getDeleteButtonId(int cardId) {
-        // This is a simplified approach - in a real app you'd want a more robust ID management
-        return R.id.btnDeleteTime1 + cardId - 1;
-    }
-
     private void updateReminderTimesList(int cardId, String time) {
         // Ensure the list is large enough
         while (reminderTimes.size() < cardId) {
             reminderTimes.add("");
         }
-        
+
         if (cardId <= reminderTimes.size()) {
             reminderTimes.set(cardId - 1, time);
         }
