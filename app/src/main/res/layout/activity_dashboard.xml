@@ -73,20 +73,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
-    <!-- Medication History/Log Button -->
-    <Button
-        android:id="@+id/btnHistory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Medication History"
-        android:textAllCaps="false"
-        android:backgroundTint="#2563EB"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/btnAddMedicine"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
-
     <!-- Emergency Info Button -->
     <Button
         android:id="@+id/btnNearByLocation"
@@ -96,7 +82,21 @@
         android:textAllCaps="false"
         android:backgroundTint="#2563EB"
         android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/btnHistory"
+        app:layout_constraintTop_toBottomOf="@id/btnAddMedicine"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- History Button -->
+    <Button
+        android:id="@+id/btnHistory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="History"
+        android:textAllCaps="false"
+        android:backgroundTint="#2563EB"
+        android:textColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/btnNearByLocation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
@@ -110,7 +110,7 @@
         android:textAllCaps="false"
         android:backgroundTint="#2563EB"
         android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/btnNearByLocation"
+        app:layout_constraintTop_toBottomOf="@id/btnHistory"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />

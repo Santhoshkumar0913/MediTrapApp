@@ -41,5 +41,8 @@ public class Dashboard extends BaseActivity {
         btnNearByLocation.setOnClickListener(v ->
                 startActivity(new Intent(Dashboard.this, NearByLocationActivity.class)));
 
+        btnHistory.setOnClickListener(v ->
+                startActivity(new Intent(Dashboard.this, HistoryMedicine.class)));
+
     }
 }

@@ -15,37 +15,29 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:background="#10B981"
             android:padding="24dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/backArrow"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_back"
+                android:contentDescription="Back" />
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <ImageView
-                    android:id="@+id/backArrow"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@drawable/ic_back"
-                    android:contentDescription="Back"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Track your medication journey"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20sp"
-                    android:layout_marginStart="16dp" />
-            </LinearLayout>
+                android:layout_weight="1"
+                android:text="Track your medication journey"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:layout_marginStart="16dp" />
         </LinearLayout>
 
-        <!-- Tab Buttons -->
+        <!-- Filter Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,7 +49,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="All (6)"
+                android:text="All"
                 android:textAllCaps="false"
                 android:backgroundTint="#5B67CA"
                 android:textColor="#FFFFFF"
@@ -65,11 +57,11 @@
                 android:layout_marginEnd="8dp" />
 
             <Button
-                android:id="@+id/btnActive"
+                android:id="@+id/btnSkipped"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Active (4)"
+                android:text="Skipped"
                 android:textAllCaps="false"
                 android:backgroundTint="#F1F5F9"
                 android:textColor="#64748B"
@@ -81,7 +73,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Completed(1)"
+                android:text="Completed"
                 android:textAllCaps="false"
                 android:backgroundTint="#F1F5F9"
                 android:textColor="#64748B"
@@ -89,283 +81,13 @@
         </LinearLayout>
 
         <!-- Medicine List -->
-        <androidx.core.widget.NestedScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerHistory"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Medicine Item 1 -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    android:layout_marginBottom="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="12dp">
-
-                            <FrameLayout
-                                android:layout_width="56dp"
-                                android:layout_height="56dp"
-                                android:background="@drawable/rounded_border"
-                                android:backgroundTint="#FFA500"
-                                android:layout_marginEnd="16dp">
-
-                                <ImageView
-                                    android:layout_width="32dp"
-                                    android:layout_height="32dp"
-                                    android:src="@android:drawable/ic_menu_gallery"
-                                    android:layout_gravity="center"
-                                    app:tint="#FFFFFF" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:text="Vitamin D"
-                                        android:textSize="18sp"
-                                        android:textStyle="bold"
-                                        android:textColor="#1E293B" />
-
-                                    <Button
-                                        android:id="@+id/btnView1"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="36dp"
-                                        android:text="View"
-                                        android:textAllCaps="false"
-                                        android:backgroundTint="#F1F5F9"
-                                        android:textColor="#5B67CA"
-                                        app:cornerRadius="18dp" />
-
-                                </LinearLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="1000 IU • tablet"
-                                    android:textSize="14sp"
-                                    android:textColor="#64748B"
-                                    android:layout_marginTop="4dp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Progress 28/30"
-                            android:textSize="14sp"
-                            android:textColor="#64748B"
-                            android:layout_marginBottom="12dp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginEnd="16dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Once Daily"
-                                    android:textSize="12sp"
-                                    android:textColor="#64748B" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginEnd="16dp">
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:src="@android:drawable/ic_menu_recent_history"
-                                    android:layout_marginEnd="4dp"
-                                    app:tint="#64748B" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Next: 08:00 AM"
-                                    android:textSize="12sp"
-                                    android:textColor="#64748B" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- Medicine Item 2 -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
-                    android:layout_marginBottom="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="12dp">
-
-                            <FrameLayout
-                                android:layout_width="56dp"
-                                android:layout_height="56dp"
-                                android:background="@drawable/rounded_border"
-                                android:backgroundTint="#FF5757"
-                                android:layout_marginEnd="16dp">
-
-                                <ImageView
-                                    android:layout_width="32dp"
-                                    android:layout_height="32dp"
-                                    android:src="@android:drawable/ic_menu_gallery"
-                                    android:layout_gravity="center"
-                                    app:tint="#FFFFFF" />
-                            </FrameLayout>
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:text="Blood Pressure Medication"
-                                        android:textSize="18sp"
-                                        android:textStyle="bold"
-                                        android:textColor="#1E293B" />
-
-                                    <Button
-                                        android:id="@+id/btnView2"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="36dp"
-                                        android:text="View"
-                                        android:textAllCaps="false"
-                                        android:backgroundTint="#F1F5F9"
-                                        android:textColor="#5B67CA"
-                                        app:cornerRadius="18dp" />
-
-                                </LinearLayout>
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="10mg • tablet"
-                                    android:textSize="14sp"
-                                    android:textColor="#64748B"
-                                    android:layout_marginTop="4dp" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Progress 12/15"
-                            android:textSize="14sp"
-                            android:textColor="#64748B"
-                            android:layout_marginBottom="12dp" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginEnd="16dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Twice Daily"
-                                    android:textSize="12sp"
-                                    android:textColor="#64748B" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_marginEnd="16dp">
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:src="@android:drawable/ic_menu_recent_history"
-                                    android:layout_marginEnd="4dp"
-                                    app:tint="#64748B" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Next: 12:00 PM"
-                                    android:textSize="12sp"
-                                    android:textColor="#64748B" />
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="12dp"/>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
