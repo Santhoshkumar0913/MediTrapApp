@@ -7,12 +7,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Settings extends BaseActivity {
 
@@ -64,8 +69,40 @@ public class Settings extends BaseActivity {
     private void loadUserData() {
         if (mAuth.getCurrentUser() != null) {
             String uid = mAuth.getCurrentUser().getUid();
-            db.collection("Users").document(uid).get().addOnSuccessListener(this::populateProfile);
+            db.collection("Users").document(uid).get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            populateProfile(doc);
+                        } else {
+                            loadFromRealtime(uid);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        loadFromRealtime(uid);
+                    });
         }
+    }
+
+    private void loadFromRealtime(String uid) {
+        FirebaseDatabase.getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
+                .getReference("users")
+                .child(uid)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        User user = snapshot.getValue(User.class);
+                        if (user != null) {
+                            populateFromUser(user);
+                        }
+                        setAuthEmailFallback();
+                    } else {
+                        setAuthEmailFallback();
+                        Toast.makeText(Settings.this, "No profile found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    setAuthEmailFallback();
+                });
     }
 
     private void populateProfile(DocumentSnapshot doc) {
@@ -81,6 +118,26 @@ public class Settings extends BaseActivity {
                 int position = ((ArrayAdapter) spinnerGender.getAdapter()).getPosition(gender);
                 spinnerGender.setSelection(position);
             }
+            setAuthEmailFallback();
+        }
+    }
+
+    private void populateFromUser(User user) {
+        etName.setText(user.getName());
+        etAge.setText(user.getAge());
+        etFamilyPhone.setText(user.getFamilyPhone());
+        etPersonalPhone.setText(user.getPersonalPhone());
+        etEmail.setText(user.getEmail());
+
+        if (user.getGender() != null) {
+            int position = ((ArrayAdapter) spinnerGender.getAdapter()).getPosition(user.getGender());
+            spinnerGender.setSelection(position);
+        }
+    }
+
+    private void setAuthEmailFallback() {
+        if (etEmail.getText().toString().trim().isEmpty() && mAuth.getCurrentUser() != null && mAuth.getCurrentUser().getEmail() != null) {
+            etEmail.setText(mAuth.getCurrentUser().getEmail());
         }
     }
 }
