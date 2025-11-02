@@ -18,6 +18,7 @@ public class Medicine {
     private String userId;
     private String userEmail;
     private String userName;
+    private String whenToTake; // Before Meal / After Meal
     private String status = "Next"; // Default status is "Next"
 
     // Default constructor for Firebase
@@ -28,6 +29,7 @@ public class Medicine {
         this.taken = false;
         this.frequency = "Once a day";
         this.medicineType = "Unknown";
+        this.whenToTake = "";
     }
 
     // Constructor for backward compatibility
@@ -87,4 +89,7 @@ public class Medicine {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+
+    public String getWhenToTake() { return whenToTake; }
+    public void setWhenToTake(String whenToTake) { this.whenToTake = whenToTake; }
 }

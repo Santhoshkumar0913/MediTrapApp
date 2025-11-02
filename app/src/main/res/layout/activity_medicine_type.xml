@@ -113,8 +113,8 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <CheckBox
-                        android:id="@+id/cbTablets"
+                    <RadioButton
+                        android:id="@+id/rbTablets"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="#2563EB" />
@@ -167,8 +167,8 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <CheckBox
-                        android:id="@+id/cbLiquids"
+                    <RadioButton
+                        android:id="@+id/rbLiquids"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="#2563EB" />
@@ -221,8 +221,8 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <CheckBox
-                        android:id="@+id/cbCreams"
+                    <RadioButton
+                        android:id="@+id/rbCreams"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="#2563EB" />
@@ -275,8 +275,8 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <CheckBox
-                        android:id="@+id/cbInhalers"
+                    <RadioButton
+                        android:id="@+id/rbInhalers"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="#2563EB" />
@@ -329,8 +329,8 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <CheckBox
-                        android:id="@+id/cbInjections"
+                    <RadioButton
+                        android:id="@+id/rbInjections"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:buttonTint="#2563EB" />
@@ -348,9 +348,9 @@
                 android:textStyle="bold"
                 android:backgroundTint="#2563EB"
                 android:textColor="#FFFFFF"
+                android:enabled="false"
                 android:layout_marginTop="32dp"
-                android:layout_marginBottom="24dp"
-                app:cornerRadius="12dp"/>
+                android:layout_marginBottom="24dp"/>
 
         </LinearLayout>
     </ScrollView>

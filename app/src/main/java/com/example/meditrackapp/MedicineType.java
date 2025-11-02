@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.RadioButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -14,7 +14,7 @@ public class MedicineType extends BaseActivity {
     private static final String TAG = "MedicineType";
     private ImageView backArrow;
     private Button btnSubmit;
-    private CheckBox cbTablets, cbLiquids, cbCreams, cbInhalers, cbInjections;
+    private RadioButton rbTablets, rbLiquids, rbCreams, rbInhalers, rbInjections;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +23,31 @@ public class MedicineType extends BaseActivity {
 
         backArrow = findViewById(R.id.backArrow);
         btnSubmit = findViewById(R.id.btnSubmit);
-        cbTablets = findViewById(R.id.cbTablets);
-        cbLiquids = findViewById(R.id.cbLiquids);
-        cbCreams = findViewById(R.id.cbCreams);
-        cbInhalers = findViewById(R.id.cbInhalers);
-        cbInjections = findViewById(R.id.cbInjections);
+        rbTablets = findViewById(R.id.rbTablets);
+        rbLiquids = findViewById(R.id.rbLiquids);
+        rbCreams = findViewById(R.id.rbCreams);
+        rbInhalers = findViewById(R.id.rbInhalers);
+        rbInjections = findViewById(R.id.rbInjections);
 
+        // Ensure button disabled until a selection is made
+        btnSubmit.setEnabled(false);
+
+        View.OnClickListener singleSelectListener = v -> {
+            // Uncheck all, then check the clicked one
+            rbTablets.setChecked(false);
+            rbLiquids.setChecked(false);
+            rbCreams.setChecked(false);
+            rbInhalers.setChecked(false);
+            rbInjections.setChecked(false);
+            ((RadioButton) v).setChecked(true);
+            btnSubmit.setEnabled(true);
+        };
+
+        rbTablets.setOnClickListener(singleSelectListener);
+        rbLiquids.setOnClickListener(singleSelectListener);
+        rbCreams.setOnClickListener(singleSelectListener);
+        rbInhalers.setOnClickListener(singleSelectListener);
+        rbInjections.setOnClickListener(singleSelectListener);
 
         // Back arrow: go back to previous activity (Dashboard)
         backArrow.setOnClickListener(v -> {
@@ -38,26 +57,17 @@ public class MedicineType extends BaseActivity {
 
         // Continue button -> open AddMedicine, passing selected type(s)
         btnSubmit.setOnClickListener(v -> {
-            StringBuilder typeBuilder = new StringBuilder();
-            if (cbTablets.isChecked()) typeBuilder.append("Tablets");
-            if (cbLiquids.isChecked()) {
-                if (typeBuilder.length() > 0) typeBuilder.append(", ");
-                typeBuilder.append("Liquids");
-            }
-            if (cbCreams.isChecked()) {
-                if (typeBuilder.length() > 0) typeBuilder.append(", ");
-                typeBuilder.append("Creams");
-            }
-            if (cbInhalers.isChecked()) {
-                if (typeBuilder.length() > 0) typeBuilder.append(", ");
-                typeBuilder.append("Inhalers");
-            }
-            if (cbInjections.isChecked()) {
-                if (typeBuilder.length() > 0) typeBuilder.append(", ");
-                typeBuilder.append("Injections");
-            }
+            String selectedType = "Unknown";
+            if (rbTablets.isChecked()) selectedType = "Tablets";
+            else if (rbLiquids.isChecked()) selectedType = "Liquids";
+            else if (rbCreams.isChecked()) selectedType = "Creams";
+            else if (rbInhalers.isChecked()) selectedType = "Inhalers";
+            else if (rbInjections.isChecked()) selectedType = "Injections";
 
-            String selectedType = typeBuilder.length() > 0 ? typeBuilder.toString() : "Unknown";
+            if ("Unknown".equals(selectedType)) {
+                Toast.makeText(MedicineType.this, "Please select a medicine type", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             Intent intent = new Intent(MedicineType.this, AddMedicine.class);
             intent.putExtra("medicineType", selectedType);

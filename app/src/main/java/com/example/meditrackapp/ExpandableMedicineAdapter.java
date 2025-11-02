@@ -46,7 +46,11 @@ public class ExpandableMedicineAdapter extends RecyclerView.Adapter<ExpandableMe
             timeDisplay = "No reminders";
         }
         
-        holder.tvMedicineMeta.setText(m.getDosage() + " • " + timeDisplay);
+        if (m.getWhenToTake() != null && !m.getWhenToTake().isEmpty()) {
+            holder.tvMedicineMeta.setText(m.getWhenToTake() + " • " + m.getDosage() + " • " + timeDisplay);
+        } else {
+            holder.tvMedicineMeta.setText(m.getDosage() + " • " + timeDisplay);
+        }
         
         // Set medicine type icon
         holder.imgMedicineType.setImageResource(getMedicineTypeIcon(m));

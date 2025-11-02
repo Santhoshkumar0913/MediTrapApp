@@ -69,6 +69,7 @@ public class FirebaseMedicineHelper {
         medicineValues.put("userId", medicine.getUserId());
         medicineValues.put("userEmail", medicine.getUserEmail());
         medicineValues.put("userName", medicine.getUserName());
+        medicineValues.put("whenToTake", medicine.getWhenToTake());
         
         Log.d(TAG, "Saving medicine to Firebase: " + medicine.getName());
         Log.d(TAG, "User ID: " + userId);
@@ -117,6 +118,7 @@ public class FirebaseMedicineHelper {
                                 String endDate = snapshot.child("endDate").getValue(String.class);
                                 String frequency = snapshot.child("frequency").getValue(String.class);
                                 String medicineType = snapshot.child("medicineType").getValue(String.class);
+                                String whenToTake = snapshot.child("whenToTake").getValue(String.class);
                                 
                                 // Handle customDays as a simple list
                                 ArrayList<String> customDays = new ArrayList<>();
@@ -168,6 +170,7 @@ public class FirebaseMedicineHelper {
                                 medicine.setReminderTimes(reminderTimes);
                                 medicine.setReminderEnabled(reminderEnabled);
                                 medicine.setTaken(taken);
+                                medicine.setWhenToTake(whenToTake != null ? whenToTake : "");
                                 
                                 medicineList.add(medicine);
                             } catch (Exception e) {

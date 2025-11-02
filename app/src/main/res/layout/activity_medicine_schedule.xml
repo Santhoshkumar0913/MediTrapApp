@@ -131,11 +131,14 @@
                         android:layout_weight="1"
                         android:text="Mark as Taken"
                         android:textAllCaps="false"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:backgroundTint="#2563EB"
                         android:textColor="#FFFFFF"
-                        app:cornerRadius="12dp"
+                        android:singleLine="true"
+                        android:ellipsize="none"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
                         android:layout_marginEnd="8dp"
                         android:visibility="gone" />
 
@@ -146,11 +149,14 @@
                         android:layout_weight="1"
                         android:text="Skip"
                         android:textAllCaps="false"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
                         android:backgroundTint="#D1D5DB"
                         android:textColor="#1F2937"
-                        app:cornerRadius="12dp"
+                        android:singleLine="true"
+                        android:ellipsize="none"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -43,7 +44,9 @@ public class AddMedicine extends BaseActivity {
     private Button btnCustom;
     private Button btnFromDate;
     private Button btnToDate;
-    
+    private CheckBox cbBeforeMeal;
+    private CheckBox cbAfterMeal;
+
     private List<String> reminderTimes = new ArrayList<>();
     private int reminderCounter = 1;
     private Calendar fromDate = Calendar.getInstance();
@@ -63,7 +66,7 @@ public class AddMedicine extends BaseActivity {
         initializeViews();
         setupClickListeners();
         setupDosageControls();
-        
+
         // Read selected medicine type from intent (default to "Unknown")
         Intent intent = getIntent();
         if (intent != null) {
@@ -108,14 +111,16 @@ public class AddMedicine extends BaseActivity {
         btnCustom = findViewById(R.id.btnCustom);
         btnFromDate = findViewById(R.id.btnFromDate);
         btnToDate = findViewById(R.id.btnToDate);
-        
+        cbBeforeMeal = findViewById(R.id.cbBeforeMeal);
+        cbAfterMeal = findViewById(R.id.cbAfterMeal);
+
         // Setup first reminder time click listener
         TextView tvFirstTime = findViewById(R.id.tvReminderTime1);
         ImageView btnFirstDelete = findViewById(R.id.btnDeleteTime1);
-        
+
         tvFirstTime.setOnClickListener(v -> showTimePicker(tvFirstTime, 1));
         btnFirstDelete.setOnClickListener(v -> removeFirstReminderTime());
-        
+
         // Initialize date buttons
         btnFromDate.setText(dateFormat.format(fromDate.getTime()));
         btnToDate.setText(dateFormat.format(toDate.getTime()));
@@ -133,10 +138,19 @@ public class AddMedicine extends BaseActivity {
         btnFromDate.setOnClickListener(v -> showDatePicker(true));
         btnToDate.setOnClickListener(v -> showDatePicker(false));
 
+        // Enforce single selection for when to take
+        cbBeforeMeal.setOnClickListener(v -> {
+            if (cbBeforeMeal.isChecked()) cbAfterMeal.setChecked(false);
+        });
+        cbAfterMeal.setOnClickListener(v -> {
+            if (cbAfterMeal.isChecked()) cbBeforeMeal.setChecked(false);
+        });
+
         switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
             updateReminderVisibility(isChecked);
         });
     }
+
     private void setupDosageControls() {
         btnDecrease.setOnClickListener(v -> {
             int currentDosage = Integer.parseInt(etDosage.getText().toString());
@@ -163,11 +177,11 @@ public class AddMedicine extends BaseActivity {
 
     private void addNewReminderTime() {
         reminderCounter++;
-        
+
         // Create new reminder time card
         CardView newCard = createReminderTimeCard(reminderCounter);
         containerReminderTimes.addView(newCard);
-        
+
         // Update add button visibility
         if (reminderCounter >= 5) { // Limit to 5 reminders
             btnAddAnotherTime.setVisibility(View.GONE);
@@ -177,21 +191,21 @@ public class AddMedicine extends BaseActivity {
     private CardView createReminderTimeCard(int cardId) {
         LayoutInflater inflater = LayoutInflater.from(this);
         CardView card = (CardView) inflater.inflate(R.layout.item_reminder_time, containerReminderTimes, false);
-        
+
         TextView tvTime = card.findViewById(R.id.tvReminderTime);
         ImageView btnDelete = card.findViewById(R.id.btnDeleteTime);
-        
+
         // Set unique IDs
         tvTime.setId(View.generateViewId());
         btnDelete.setId(View.generateViewId());
-        
+
         // Set click listeners
         tvTime.setOnClickListener(v -> showTimePicker(tvTime, cardId));
         btnDelete.setOnClickListener(v -> removeReminderTime(card, cardId));
-        
+
         // Store the delete button reference for later use
         card.setTag(R.id.btnDeleteTime, btnDelete);
-        
+
         return card;
     }
 
@@ -201,41 +215,41 @@ public class AddMedicine extends BaseActivity {
         int minute = calendar.get(Calendar.MINUTE);
 
         TimePickerDialog timePickerDialog = new TimePickerDialog(
-            this,
-            (view, hourOfDay, minuteOfDay) -> {
-                String time = formatTime(hourOfDay, minuteOfDay);
-                textView.setText(time);
-                textView.setTextColor(getResources().getColor(R.color.black));
-                
-                // Show delete button
-                if (cardId == 1) {
-                    ImageView deleteBtn = findViewById(R.id.btnDeleteTime1);
-                    if (deleteBtn != null) {
-                        deleteBtn.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    // For dynamically added cards, get the delete button from the parent card's tag
-                    ViewParent parent = textView.getParent();
-                    while (parent != null && !(parent instanceof CardView)) {
-                        parent = parent.getParent();
-                    }
-                    
-                    if (parent != null) {
-                        CardView card = (CardView) parent;
-                        ImageView deleteBtn = (ImageView) card.getTag(R.id.btnDeleteTime);
+                this,
+                (view, hourOfDay, minuteOfDay) -> {
+                    String time = formatTime(hourOfDay, minuteOfDay);
+                    textView.setText(time);
+                    textView.setTextColor(getResources().getColor(R.color.black));
+
+                    // Show delete button
+                    if (cardId == 1) {
+                        ImageView deleteBtn = findViewById(R.id.btnDeleteTime1);
                         if (deleteBtn != null) {
                             deleteBtn.setVisibility(View.VISIBLE);
                         }
+                    } else {
+                        // For dynamically added cards, get the delete button from the parent card's tag
+                        ViewParent parent = textView.getParent();
+                        while (parent != null && !(parent instanceof CardView)) {
+                            parent = parent.getParent();
+                        }
+
+                        if (parent != null) {
+                            CardView card = (CardView) parent;
+                            ImageView deleteBtn = (ImageView) card.getTag(R.id.btnDeleteTime);
+                            if (deleteBtn != null) {
+                                deleteBtn.setVisibility(View.VISIBLE);
+                            }
+                        }
                     }
-                }
-                // Add to reminder times list
-                updateReminderTimesList(cardId, time);
-            },
-            hour,
-            minute,
-            false // 12-hour format
+                    // Add to reminder times list
+                    updateReminderTimesList(cardId, time);
+                },
+                hour,
+                minute,
+                false // 12-hour format
         );
-        
+
         timePickerDialog.setTitle("Select Time");
         timePickerDialog.show();
     }
@@ -244,7 +258,7 @@ public class AddMedicine extends BaseActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
         return sdf.format(calendar.getTime());
     }
@@ -263,11 +277,11 @@ public class AddMedicine extends BaseActivity {
     private void removeFirstReminderTime() {
         TextView tvFirstTime = findViewById(R.id.tvReminderTime1);
         ImageView btnFirstDelete = findViewById(R.id.btnDeleteTime1);
-        
+
         tvFirstTime.setText("Select Time");
         tvFirstTime.setTextColor(getResources().getColor(R.color.inactive_tab_text));
         btnFirstDelete.setVisibility(View.GONE);
-        
+
         // Remove from reminder times list
         if (!reminderTimes.isEmpty()) {
             reminderTimes.remove(0);
@@ -276,35 +290,35 @@ public class AddMedicine extends BaseActivity {
 
     private void removeReminderTime(CardView card, int cardId) {
         containerReminderTimes.removeView(card);
-        
+
         // Remove from reminder times list
         if (cardId <= reminderTimes.size()) {
             reminderTimes.remove(cardId - 1);
         }
-        
+
         // Show add button if we're under the limit
         if (reminderCounter < 5) {
             btnAddAnotherTime.setVisibility(View.VISIBLE);
         }
-        
+
         reminderCounter--;
     }
 
     private void showDatePicker(boolean isFromDate) {
         Calendar calendar = isFromDate ? fromDate : toDate;
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-            this,
-            (view, year, month, dayOfMonth) -> {
-                calendar.set(year, month, dayOfMonth);
-                if (isFromDate) {
-                    btnFromDate.setText(dateFormat.format(calendar.getTime()));
-                } else {
-                    btnToDate.setText(dateFormat.format(calendar.getTime()));
-                }
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(year, month, dayOfMonth);
+                    if (isFromDate) {
+                        btnFromDate.setText(dateFormat.format(calendar.getTime()));
+                    } else {
+                        btnToDate.setText(dateFormat.format(calendar.getTime()));
+                    }
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
         );
         datePickerDialog.show();
     }
@@ -316,12 +330,12 @@ public class AddMedicine extends BaseActivity {
             public void onCustomDaysSelected(List<String> selectedDays, String frequency) {
                 customDays = selectedDays;
                 customFrequency = frequency;
-                
+
                 // Update UI to show selected days
                 updateCustomScheduleDisplay();
             }
         });
-        
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragmentContainer, fragment);
@@ -330,13 +344,13 @@ public class AddMedicine extends BaseActivity {
     }
 
     private void saveMedicine() {
-            String name = etMedicineName.getText().toString().trim();
-            String dosageCount = etDosage.getText().toString().trim();
+        String name = etMedicineName.getText().toString().trim();
+        String dosageCount = etDosage.getText().toString().trim();
 
-            if (name.isEmpty()) {
-                Toast.makeText(this, "Please enter a medicine name", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        if (name.isEmpty()) {
+            Toast.makeText(this, "Please enter a medicine name", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (dosageCount.isEmpty()) {
             Toast.makeText(this, "Please enter dosage", Toast.LENGTH_SHORT).show();
@@ -362,7 +376,16 @@ public class AddMedicine extends BaseActivity {
         medicine.setMedicineType(medicineType);
         medicine.setUserId(currentUser.getUid());
         medicine.setUserEmail(currentUser.getEmail());
-        
+
+        // When to take
+        if (cbBeforeMeal.isChecked()) {
+            medicine.setWhenToTake("Before Meal");
+        } else if (cbAfterMeal.isChecked()) {
+            medicine.setWhenToTake("After Meal");
+        } else {
+            medicine.setWhenToTake("");
+        }
+
         // Get actual user name from Realtime Database under `users/{uid}`
         com.google.firebase.database.FirebaseDatabase.getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
                 .getReference("users")

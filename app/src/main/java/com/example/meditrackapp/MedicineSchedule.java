@@ -18,6 +18,8 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -315,7 +317,13 @@ public class MedicineSchedule extends BaseActivity {
             // Show next medicine
             tvNextTime.setText(nextDose.time);
             tvNextMedicineName.setText(nextDose.medicine.getName());
-            tvNextMedicineDosage.setText(nextDose.medicine.getDosage());
+            String when = nextDose.medicine.getWhenToTake();
+            if (when != null && !when.isEmpty()) {
+                tvNextMedicineDosage.setText(when + " • " + nextDose.medicine.getDosage());
+            } else {
+                tvNextMedicineDosage.setText(nextDose.medicine.getDosage());
+            }
+            
             imgNextMedicine.setImageResource(getMedicineTypeIcon(nextDose.medicine.getName()));
             imgNextMedicine.setColorFilter(null); // Remove any color filter
             
@@ -444,7 +452,12 @@ public class MedicineSchedule extends BaseActivity {
         
         // Set medicine data
         tvMedicineName.setText(d.medicine.getName());
-        tvMedicineDetails.setText(d.medicine.getDosage() + " • " + d.time);
+        String when = d.medicine.getWhenToTake();
+        if (when != null && !when.isEmpty()) {
+            tvMedicineDetails.setText(when + " • " + d.medicine.getDosage() + " • " + d.time);
+        } else {
+            tvMedicineDetails.setText(d.medicine.getDosage() + " • " + d.time);
+        }
         
         // Set medicine type icon
         imgMedicineType.setImageResource(getMedicineTypeIcon(d.medicine.getName()));
@@ -472,6 +485,7 @@ public class MedicineSchedule extends BaseActivity {
         Toast.makeText(MedicineSchedule.this, d.medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
         MedicineReminderService.stopRingtone();
         MedicineReminderService.cancelNotification(this);
+        logMedicineStatus(d, "Taken");
         updateUI();
     }
 
@@ -481,7 +495,31 @@ public class MedicineSchedule extends BaseActivity {
         Toast.makeText(this, d.medicine.getName() + " skipped", Toast.LENGTH_SHORT).show();
         MedicineReminderService.stopRingtone();
         MedicineReminderService.cancelNotification(this);
+        logMedicineStatus(d, "Skipped");
         updateUI();
+    }
+
+    private void logMedicineStatus(Dose d, String status) {
+        try {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser == null) return;
+            DatabaseReference ref = FirebaseDatabase
+                    .getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
+                    .getReference("medicineStatus");
+
+            java.util.HashMap<String, Object> map = new java.util.HashMap<>();
+            map.put("status", status);
+            map.put("time", d.time);
+            map.put("timestamp", System.currentTimeMillis());
+            map.put("medicineId", d.medicine.getId());
+            map.put("medicineName", d.medicine.getName());
+            map.put("whenToTake", d.medicine.getWhenToTake());
+            map.put("userId", d.medicine.getUserId());
+            map.put("userName", d.medicine.getUserName());
+
+            ref.push().setValue(map);
+        } catch (Exception ignored) {
+        }
     }
     
     private void updateMedicineInFirebase(Medicine medicine) {
