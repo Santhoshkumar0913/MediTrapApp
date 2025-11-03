@@ -23,6 +23,17 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
+    <Button
+        android:id="@+id/btnClearSms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#D1D5DB"
+        android:text="Refresh"
+        android:textAllCaps="false"
+        android:textColor="#1F2937" />
+
     <TextView
         android:id="@+id/tvEmpty"
         android:layout_width="match_parent"

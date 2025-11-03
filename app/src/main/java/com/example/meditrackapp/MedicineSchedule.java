@@ -2,6 +2,8 @@ package com.example.meditrackapp;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -102,6 +104,13 @@ public class MedicineSchedule extends BaseActivity {
         // Start polling
         pollHandler.removeCallbacks(pollTask);
         pollHandler.postDelayed(pollTask, 1000);
+        // Listen for dose status updates from background actions
+        if (!isDoseReceiverRegistered) {
+            try {
+                registerReceiver(doseStatusReceiver, new android.content.IntentFilter("DOSE_STATUS_UPDATED"));
+                isDoseReceiverRegistered = true;
+            } catch (Exception ignored) {}
+        }
     }
 
     @Override
@@ -109,6 +118,10 @@ public class MedicineSchedule extends BaseActivity {
         super.onPause();
         // Stop polling when not visible
         pollHandler.removeCallbacks(pollTask);
+        if (isDoseReceiverRegistered) {
+            try { unregisterReceiver(doseStatusReceiver); } catch (Exception ignored) {}
+            isDoseReceiverRegistered = false;
+        }
     }
 
     private void initializeViews() {
@@ -123,6 +136,16 @@ public class MedicineSchedule extends BaseActivity {
         medicineList = findViewById(R.id.medicineList);
         cardEmptyState = findViewById(R.id.cardEmptyState);
     }
+
+    private final BroadcastReceiver doseStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && "DOSE_STATUS_UPDATED".equals(intent.getAction())) {
+                updateUI();
+            }
+        }
+    };
+    private boolean isDoseReceiverRegistered = false;
 
     private void setupClickListeners() {
         backArrowDashboard.setOnClickListener(v -> {
@@ -320,9 +343,9 @@ public class MedicineSchedule extends BaseActivity {
             tvNextMedicineName.setText(nextDose.medicine.getName());
             String when = nextDose.medicine.getWhenToTake();
             if (when != null && !when.isEmpty()) {
-                tvNextMedicineDosage.setText(when + " • " + nextDose.medicine.getDosage());
+                tvNextMedicineDosage.setText(when + " • " + formatDosageForType(nextDose.medicine));
             } else {
-                tvNextMedicineDosage.setText(nextDose.medicine.getDosage());
+                tvNextMedicineDosage.setText(formatDosageForType(nextDose.medicine));
             }
             
             imgNextMedicine.setImageResource(getMedicineTypeIcon(nextDose.medicine.getName()));
@@ -455,9 +478,9 @@ public class MedicineSchedule extends BaseActivity {
         tvMedicineName.setText(d.medicine.getName());
         String when = d.medicine.getWhenToTake();
         if (when != null && !when.isEmpty()) {
-            tvMedicineDetails.setText(when + " • " + d.medicine.getDosage() + " • " + d.time);
+            tvMedicineDetails.setText(when + " • " + formatDosageForType(d.medicine) + " • " + d.time);
         } else {
-            tvMedicineDetails.setText(d.medicine.getDosage() + " • " + d.time);
+            tvMedicineDetails.setText(formatDosageForType(d.medicine) + " • " + d.time);
         }
         
         // Set medicine type icon
@@ -584,5 +607,24 @@ public class MedicineSchedule extends BaseActivity {
                 .edit()
                 .putBoolean("fired:" + key, true)
                 .apply();
+    }
+
+    private String formatDosageForType(Medicine med) {
+        String dosage = med.getDosage() != null ? med.getDosage() : "";
+        String type = med.getMedicineType() != null ? med.getMedicineType().toLowerCase() : "";
+        // If dosage already includes a unit that's not pill(s), keep it
+        if (dosage.matches(".*(ml|g|mg|puff\\(s\\)|unit\\(s\\)|tablet\\(s\\)).*")) return dosage;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d+)\\s*pill\\(s\\)$").matcher(dosage.trim());
+        String qty = null;
+        if (m.find()) qty = m.group(1);
+        if (qty == null && dosage.matches("^\\d+$")) qty = dosage;
+        if (qty == null) return dosage;
+        String unit = "pill(s)";
+        if (type.contains("liquid")) unit = "ml";
+        else if (type.contains("inhaler")) unit = "puff(s)";
+        else if (type.contains("cream")) unit = "g";
+        else if (type.contains("injection")) unit = "unit(s)";
+        else if (type.contains("tablet")) unit = "tablet(s)";
+        return qty + " " + unit;
     }
 }

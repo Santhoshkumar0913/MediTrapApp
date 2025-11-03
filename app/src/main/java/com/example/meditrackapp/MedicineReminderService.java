@@ -124,9 +124,15 @@ public class MedicineReminderService {
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         notificationManager.cancel(NOTIFICATION_ID);
         
-        // Update the medicine status in Firebase
-        DatabaseReference medicineRef = FirebaseDatabase.getInstance().getReference()
-                .child("medicines").child(medicineId);
+        // Update the medicine status in Firebase under userId/medicineId
+        String userIdForPath = null;
+        try {
+            com.google.firebase.auth.FirebaseUser u = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+            if (u != null) userIdForPath = u.getUid();
+        } catch (Exception ignored) { }
+        DatabaseReference medicineRef = userIdForPath == null
+                ? FirebaseDatabase.getInstance().getReference().child("medicines")
+                : FirebaseDatabase.getInstance().getReference().child("medicines").child(userIdForPath).child(medicineId);
         
         medicineRef.child("status").setValue(status)
                 .addOnSuccessListener(aVoid -> {
@@ -141,22 +147,27 @@ public class MedicineReminderService {
                 .child("medicineStatus").push();
         
         // Get the medicine details to store in the status record
-        FirebaseDatabase.getInstance().getReference().child("medicines").child(medicineId)
+        DatabaseReference medFetchRef = userIdForPath == null
+                ? FirebaseDatabase.getInstance().getReference().child("medicines")
+                : FirebaseDatabase.getInstance().getReference().child("medicines").child(userIdForPath).child(medicineId);
+        medFetchRef
                 .get().addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         Medicine medicine = task.getResult().getValue(Medicine.class);
                         if (medicine != null) {
                             // Get the first reminder time if available, otherwise use empty string
                             String reminderTime = time != null ? time : "";
-                            
-                            MedicineStatus medicineStatus = new MedicineStatus(
-                                    medicine.getName(),
-                                    medicine.getDosage(),
-                                    reminderTime,
-                                    status,
-                                    System.currentTimeMillis()
-                            );
-                            statusRef.setValue(medicineStatus);
+
+                            java.util.HashMap<String, Object> map = new java.util.HashMap<>();
+                            map.put("status", status);
+                            map.put("time", reminderTime);
+                            map.put("timestamp", System.currentTimeMillis());
+                            map.put("medicineId", medicineId);
+                            map.put("medicineName", medicine.getName());
+                            map.put("whenToTake", medicine.getWhenToTake());
+                            map.put("userId", medicine.getUserId());
+                            map.put("userName", medicine.getUserName());
+                            statusRef.setValue(map);
 
                             // If skipped, notify family via SMS (if permission granted)
                             if ("Skipped".equalsIgnoreCase(status)) {
@@ -174,6 +185,14 @@ public class MedicineReminderService {
                     .edit()
                     .putString(key, status)
                     .apply();
+            try {
+                // Notify UI screens to refresh dose status
+                Intent i = new Intent("DOSE_STATUS_UPDATED");
+                i.putExtra("medicineId", medicineId);
+                i.putExtra("time", time);
+                i.putExtra("status", status);
+                context.sendBroadcast(i);
+            } catch (Exception ignored) { }
         }
     }
     

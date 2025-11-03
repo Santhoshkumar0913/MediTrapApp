@@ -29,6 +29,7 @@ public class SmsStatusActivity extends BaseActivity {
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView tvEmpty;
+    private android.widget.Button btnClearSms;
     private final List<SmsStatusItem> items = new ArrayList<>();
     private SmsStatusAdapter adapter;
 
@@ -49,6 +50,11 @@ public class SmsStatusActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new SmsStatusAdapter(items);
         recyclerView.setAdapter(adapter);
+
+        btnClearSms = findViewById(R.id.btnClearSms);
+        if (btnClearSms != null) {
+            btnClearSms.setOnClickListener(v -> clearLogs());
+        }
 
         loadLogs();
     }
@@ -91,6 +97,39 @@ public class SmsStatusActivity extends BaseActivity {
             public void onCancelled(DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
                 showEmpty();
+            }
+        });
+    }
+
+    private void clearLogs() {
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+        progressBar.setVisibility(View.VISIBLE);
+        DatabaseReference ref = FirebaseDatabase
+                .getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
+                .getReference("smsLogs");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                List<String> keys = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String userId = String.valueOf(child.child("userId").getValue());
+                    if (user.getUid().equals(userId)) {
+                        keys.add(child.getKey());
+                    }
+                }
+                for (String k : keys) {
+                    ref.child(k).removeValue();
+                }
+                items.clear();
+                adapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
+                tvEmpty.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
