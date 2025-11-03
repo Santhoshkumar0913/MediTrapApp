@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -64,6 +65,9 @@
         <activity
             android:name=".NearByLocationActivity"
             android:exported="false" />
+        <activity
+            android:name=".SmsStatusActivity"
+            android:exported="false" />
             
         <!-- Broadcast Receiver for notification actions -->
         <receiver
@@ -72,6 +76,16 @@
             <intent-filter>
                 <action android:name="MARK_AS_TAKEN" />
                 <action android:name="SKIP_MEDICINE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- SMS sent/delivered status receivers -->
+        <receiver
+            android:name=".SmsSendReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="SMS_SENT" />
+                <action android:name="SMS_DELIVERED" />
             </intent-filter>
         </receiver>
     </application>

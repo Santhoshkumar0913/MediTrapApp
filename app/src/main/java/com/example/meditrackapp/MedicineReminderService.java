@@ -157,6 +157,11 @@ public class MedicineReminderService {
                                     System.currentTimeMillis()
                             );
                             statusRef.setValue(medicineStatus);
+
+                            // If skipped, notify family via SMS (if permission granted)
+                            if ("Skipped".equalsIgnoreCase(status)) {
+                                SmsNotifier.sendSkipAlert(context, medicine, reminderTime);
+                            }
                         }
                     }
                 });

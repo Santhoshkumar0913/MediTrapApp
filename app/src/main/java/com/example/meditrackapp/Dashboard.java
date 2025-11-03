@@ -7,7 +7,7 @@ import android.widget.ImageView;
 
 public class Dashboard extends BaseActivity {
 
-    private Button btnMedicineList, btnAddMedicine, btnHistory, btnNearByLocation, btnProfileSettings;
+    private Button btnMedicineList, btnAddMedicine, btnHistory, btnNearByLocation, btnProfileSettings, btnSmsStatus;
     private ImageView backArrowDashboard;
 
     @Override
@@ -21,6 +21,7 @@ public class Dashboard extends BaseActivity {
         btnHistory = findViewById(R.id.btnHistory);
         btnNearByLocation = findViewById(R.id.btnNearByLocation);
         btnProfileSettings = findViewById(R.id.btnProfileSettings);
+        btnSmsStatus = findViewById(R.id.btnSmsStatus);
         backArrowDashboard = findViewById(R.id.backArrowDashboard);
 
         // Back arrow → navigate to Login
@@ -43,6 +44,9 @@ public class Dashboard extends BaseActivity {
 
         btnHistory.setOnClickListener(v ->
                 startActivity(new Intent(Dashboard.this, HistoryMedicine.class)));
+
+        btnSmsStatus.setOnClickListener(v ->
+                startActivity(new Intent(Dashboard.this, SmsStatusActivity.class)));
 
     }
 }

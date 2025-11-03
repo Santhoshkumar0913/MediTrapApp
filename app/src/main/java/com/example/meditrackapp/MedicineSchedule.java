@@ -90,6 +90,7 @@ public class MedicineSchedule extends BaseActivity {
         setupClickListeners();
         loadTodaysMedicines();
         ensureNotificationPermission();
+        ensureSmsPermission();
         updateUI();
     }
 
@@ -483,9 +484,8 @@ public class MedicineSchedule extends BaseActivity {
         storeDoseStatus(d.key, "Taken");
         d.status = "Taken";
         Toast.makeText(MedicineSchedule.this, d.medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
-        MedicineReminderService.stopRingtone();
-        MedicineReminderService.cancelNotification(this);
-        logMedicineStatus(d, "Taken");
+        // Ensure ringtone and notification are stopped and status persisted globally
+        MedicineReminderService.updateMedicineStatus(this, d.medicine.getId(), d.time, "Taken");
         updateUI();
     }
 
@@ -493,9 +493,10 @@ public class MedicineSchedule extends BaseActivity {
         storeDoseStatus(d.key, "Skipped");
         d.status = "Skipped";
         Toast.makeText(this, d.medicine.getName() + " skipped", Toast.LENGTH_SHORT).show();
-        MedicineReminderService.stopRingtone();
-        MedicineReminderService.cancelNotification(this);
-        logMedicineStatus(d, "Skipped");
+        // Ensure ringtone and notification are stopped and status persisted globally
+        MedicineReminderService.updateMedicineStatus(this, d.medicine.getId(), d.time, "Skipped");
+        // Send SMS alert to family if permitted
+        SmsNotifier.sendSkipAlert(this, d.medicine, d.time);
         updateUI();
     }
 
@@ -545,6 +546,14 @@ public class MedicineSchedule extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
+    }
+
+    private void ensureSmsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 2001);
             }
         }
     }
