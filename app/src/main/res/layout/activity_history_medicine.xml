@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     tools:context=".HistoryMedicine">
 
     <LinearLayout
@@ -13,11 +14,11 @@
 
         <!-- Header Section -->
         <LinearLayout
+            android:id="@+id/headerSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="#10B981"
             android:padding="24dp">
 
             <ImageView
@@ -25,15 +26,17 @@
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:src="@drawable/ic_back"
+                android:layout_marginEnd="12dp"
                 android:contentDescription="Back" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Track your medication journey"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
+                android:text="History"
+                android:textColor="#1E293B"
+                android:textStyle="bold"
+                android:textSize="22sp"
                 android:layout_marginStart="16dp" />
         </LinearLayout>
 
@@ -42,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="24dp">
 
             <Button
                 android:id="@+id/btnAll"
@@ -50,10 +53,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="All"
-                android:textAllCaps="false"
-                android:backgroundTint="#5B67CA"
+                android:backgroundTint="#2563EB"
                 android:textColor="#FFFFFF"
-                app:cornerRadius="24dp"
+                android:textSize="13sp"
+                android:singleLine="true"
+                android:ellipsize="none"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:layout_marginEnd="8dp" />
 
             <Button
@@ -62,10 +68,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Skipped"
-                android:textAllCaps="false"
-                android:backgroundTint="#F1F5F9"
-                android:textColor="#64748B"
-                app:cornerRadius="24dp"
+                android:backgroundTint="#2563EB"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:singleLine="true"
+                android:ellipsize="none"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:layout_marginEnd="8dp" />
 
             <Button
@@ -74,10 +83,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Completed"
-                android:textAllCaps="false"
-                android:backgroundTint="#F1F5F9"
-                android:textColor="#64748B"
-                app:cornerRadius="24dp" />
+                android:backgroundTint="#2563EB"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:singleLine="true"
+                android:ellipsize="none"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+
         </LinearLayout>
 
         <!-- Medicine List -->
@@ -86,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:padding="16dp"
+            android:padding="24dp"
             android:clipToPadding="false"
             android:scrollbars="vertical" />
     </LinearLayout>
