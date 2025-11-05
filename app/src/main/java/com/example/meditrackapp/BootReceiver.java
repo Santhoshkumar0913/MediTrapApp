@@ -10,10 +10,10 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
-/**
- * BroadcastReceiver that runs after device boot/reboot.
- * Reschedules all medicine alarms to ensure reminders continue working.
- */
+
+//BroadcastReceiver that runs after device boot/reboot.
+//Reschedules all medicine alarms to ensure reminders continue working.
+
 public class BootReceiver extends BroadcastReceiver {
     private static final String TAG = "BootReceiver";
 
@@ -32,9 +32,9 @@ public class BootReceiver extends BroadcastReceiver {
         }
     }
 
-    /**
-     * Reschedule all medicine alarms after boot.
-     */
+
+ // Reschedule all medicine alarms after boot.
+
     private void rescheduleAllMedicineAlarms(Context context) {
         try {
             // Check if user is authenticated

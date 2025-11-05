@@ -18,9 +18,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 import com.google.firebase.database.ValueEventListener;
 
-/**
- * Sends SMS alerts to the user's family phone when doses are skipped.
- */
+
+//Sends SMS alerts to the user's family phone when doses are skipped.
+
 public class SmsNotifier {
 
     public static void sendSkipAlert(Context context, Medicine medicine, String scheduledTime) {

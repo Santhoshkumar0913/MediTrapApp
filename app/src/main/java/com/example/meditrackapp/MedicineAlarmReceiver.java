@@ -10,10 +10,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * BroadcastReceiver that handles medicine reminder alarms.
- * This receiver triggers notifications regardless of which screen the user is on.
- */
+
+//BroadcastReceiver that handles medicine reminder alarms.
+
 public class MedicineAlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "MedicineAlarmReceiver";
 
@@ -71,10 +70,9 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         rescheduleAlarmForTomorrow(context, medicine, time);
     }
     
-    /**
-     * Reschedule the alarm for the next day.
-     * This ensures alarms repeat daily even with exact alarms.
-     */
+
+
+    //This ensures alarms repeat daily even with exact alarms.
     private void rescheduleAlarmForTomorrow(Context context, Medicine medicine, String time) {
         try {
             MedicineAlarmScheduler scheduler = new MedicineAlarmScheduler(context);

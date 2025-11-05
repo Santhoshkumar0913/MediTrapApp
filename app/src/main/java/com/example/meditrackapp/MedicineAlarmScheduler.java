@@ -13,10 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Helper class to schedule and cancel medicine reminder alarms.
- * Uses AlarmManager to trigger notifications at scheduled times.
- */
+ //Uses AlarmManager to trigger notifications at scheduled times.
+
 public class MedicineAlarmScheduler {
     private static final String TAG = "MedicineAlarmScheduler";
     private final Context context;
@@ -27,9 +25,9 @@ public class MedicineAlarmScheduler {
         this.alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     }
 
-    /**
-     * Schedule alarms for all reminder times of a medicine.
-     */
+
+     //Schedule alarms for all reminder times of a medicine.
+
     public void scheduleMedicineAlarms(Medicine medicine) {
         if (medicine == null || medicine.getReminderTimes() == null) return;
 
@@ -40,9 +38,9 @@ public class MedicineAlarmScheduler {
         Log.d(TAG, "Scheduled " + reminderTimes.size() + " alarms for " + medicine.getName());
     }
 
-    /**
-     * Schedule a single alarm for a specific medicine and time.
-     */
+
+    //Schedule a single alarm for a specific medicine and time.
+
     private void scheduleSingleAlarm(Medicine medicine, String time) {
         try {
             // Parse the time
@@ -149,9 +147,7 @@ public class MedicineAlarmScheduler {
         }
     }
 
-    /**
-     * Cancel all alarms for a medicine.
-     */
+
     public void cancelMedicineAlarms(Medicine medicine) {
         if (medicine == null || medicine.getReminderTimes() == null) return;
 
@@ -161,9 +157,9 @@ public class MedicineAlarmScheduler {
         Log.d(TAG, "Cancelled alarms for " + medicine.getName());
     }
 
-    /**
-     * Cancel a specific alarm.
-     */
+
+    //Cancel a specific alarm.
+
     private void cancelSingleAlarm(String medicineId, String time) {
         try {
             Intent intent = new Intent(context, MedicineAlarmReceiver.class);
@@ -186,27 +182,26 @@ public class MedicineAlarmScheduler {
         }
     }
 
-    /**
-     * Cancel all alarms (used when clearing all medicines).
-     */
+
+     //Cancel all alarms (used when clearing all medicines).
+
     public void cancelAllAlarms() {
         // Note: This is a simplified version. In a production app, you'd want to
         // maintain a list of all scheduled alarm request codes.
         Log.d(TAG, "Cancel all alarms called");
     }
 
-    /**
-     * Generate a unique request code for each medicine + time combination.
-     */
+
+     //Generate a unique request code for each medicine + time combination.
     private int getRequestCode(String medicineId, String time) {
         // Create a unique hash from medicine ID and time
         String combined = medicineId + "_" + time;
         return combined.hashCode();
     }
 
-    /**
-     * Reschedule all alarms for a list of medicines.
-     */
+
+    //Reschedule all alarms for a list of medicines.
+
     public void rescheduleAllMedicines(List<Medicine> medicines) {
         if (medicines == null) return;
 
