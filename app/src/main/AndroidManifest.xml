@@ -10,6 +10,19 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    
+    <!-- Alarm and reminder permissions for Android 12+ (API 31+) -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    
+    <!-- Required for alarms to work after device reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    
+    <!-- Required for alarms to wake device from sleep -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Foreground service permission for reliable background operations -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -46,7 +59,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Your activities here -->
+
         <activity
             android:name=".Dashboard"
             android:exported="false" />
@@ -79,6 +92,26 @@
             <intent-filter>
                 <action android:name="MARK_AS_TAKEN" />
                 <action android:name="SKIP_MEDICINE" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- Broadcast Receiver for medicine alarms - works globally -->
+        <receiver
+            android:name=".MedicineAlarmReceiver"
+            android:exported="false"
+            android:enabled="true">
+        </receiver>
+        
+        <!-- Boot Receiver to reschedule alarms after device restart -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 

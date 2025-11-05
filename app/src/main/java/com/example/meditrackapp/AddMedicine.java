@@ -423,6 +423,10 @@ public class AddMedicine extends BaseActivity {
             public void onMedicineAdded(boolean success, String message) {
                 runOnUiThread(() -> {
                     if (success) {
+                        // Schedule alarms for the new medicine
+                        MedicineAlarmScheduler alarmScheduler = new MedicineAlarmScheduler(AddMedicine.this);
+                        alarmScheduler.scheduleMedicineAlarms(medicine);
+                        
                         Toast.makeText(AddMedicine.this, "Medicine saved successfully", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(AddMedicine.this, MedicineListActivity.class));
                         finish();
