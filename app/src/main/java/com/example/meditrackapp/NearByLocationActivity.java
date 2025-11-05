@@ -23,6 +23,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
@@ -32,6 +37,8 @@ import java.util.Locale;
 public class NearByLocationActivity extends AppCompatActivity {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int REQUEST_CHECK_SETTINGS = 2;
+
     private static final String TAG = "NearByLocation";
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -93,7 +100,7 @@ public class NearByLocationActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
-            getDeviceLocation();
+            checkLocationSettingsAndProceed();
         }
     }
 
@@ -102,11 +109,47 @@ public class NearByLocationActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getDeviceLocation();
+                checkLocationSettingsAndProceed();
             } else {
                 Toast.makeText(this, "Location permission is required to find nearby shops", Toast.LENGTH_LONG).show();
                 tvCurrentLocation.setText("Location permission denied");
             }
+        }
+    }
+
+    private void checkLocationSettingsAndProceed() {
+        try {
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(5000);
+            locationRequest.setFastestInterval(2000);
+
+            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                    .addLocationRequest(locationRequest)
+                    .setAlwaysShow(true);
+
+            SettingsClient settingsClient = LocationServices.getSettingsClient(this);
+            Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
+
+            task.addOnSuccessListener(locationSettingsResponse -> {
+                getDeviceLocation();
+            });
+
+            task.addOnFailureListener(e -> {
+                if (e instanceof ResolvableApiException) {
+                    try {
+                        ((ResolvableApiException) e).startResolutionForResult(NearByLocationActivity.this, REQUEST_CHECK_SETTINGS);
+                    } catch (Exception sendEx) {
+                        Log.e(TAG, "Error starting resolution: " + sendEx.getMessage());
+                        Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "Location services are disabled", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception ex) {
+            Log.e(TAG, "checkLocationSettings error: " + ex.getMessage());
+            getDeviceLocation();
         }
     }
 
@@ -158,6 +201,15 @@ public class NearByLocationActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             Log.e(TAG, "Error requesting location updates: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            // If user enabled location, proceed
+            getDeviceLocation();
         }
     }
 

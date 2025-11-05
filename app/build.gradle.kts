@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    // START: ADD THESE LINES FOR LOCATION AND MAPS
+
     // 1. Fused Location Provider (for getLastLocation, FusedLocationProviderClient, etc.)
     implementation("com.google.android.gms:play-services-location:21.0.1")
 

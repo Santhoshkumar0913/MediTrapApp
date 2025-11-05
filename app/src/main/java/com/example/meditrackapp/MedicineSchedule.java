@@ -66,8 +66,21 @@ public class MedicineSchedule extends BaseActivity {
             for (Dose d : todaysDoses) {
                 checkDoseTime(d);
             }
+            // Also refresh dose statuses from SharedPreferences so background actions (notifications)
+            // reflect instantly without requiring navigation or a broadcast to be received
+            boolean anyStatusChanged = false;
+            for (Dose d : todaysDoses) {
+                String latest = getStoredDoseStatus(d.key);
+                if (latest != null && !latest.equals(d.status)) {
+                    d.status = latest;
+                    anyStatusChanged = true;
+                }
+            }
             // Recompute next dose and refresh header minimally
             findNextDose();
+            if (anyStatusChanged) {
+                updateUI();
+            }
             if (!isFinishing()) {
                 pollHandler.postDelayed(this, 5000); // every 5 seconds
             }
@@ -141,6 +154,8 @@ public class MedicineSchedule extends BaseActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null && "DOSE_STATUS_UPDATED".equals(intent.getAction())) {
+                // Rebuild doses to refresh statuses from SharedPreferences
+                buildTodaysDoses();
                 updateUI();
             }
         }
