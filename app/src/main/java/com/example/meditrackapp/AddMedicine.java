@@ -16,14 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ public class AddMedicine extends BaseActivity {
     private EditText etMedicineName;
     private EditText etDosage;
     private ImageButton btnDecrease, btnIncrease;
-    private SwitchCompat switchReminder;
     private LinearLayout containerReminderTimes;
     private Button btnAddAnotherTime;
     private Button btnSaveMedicine;
@@ -104,7 +102,6 @@ public class AddMedicine extends BaseActivity {
         etDosage = findViewById(R.id.etDosage);
         btnDecrease = findViewById(R.id.btnDecrease);
         btnIncrease = findViewById(R.id.btnIncrease);
-        switchReminder = findViewById(R.id.switchReminder);
         containerReminderTimes = findViewById(R.id.containerReminderTimes);
         btnAddAnotherTime = findViewById(R.id.btnAddAnotherTime);
         btnSaveMedicine = findViewById(R.id.btnSaveMedicine);
@@ -145,10 +142,6 @@ public class AddMedicine extends BaseActivity {
         cbAfterMeal.setOnClickListener(v -> {
             if (cbAfterMeal.isChecked()) cbBeforeMeal.setChecked(false);
         });
-
-        switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            updateReminderVisibility(isChecked);
-        });
     }
 
     private void setupDosageControls() {
@@ -163,16 +156,6 @@ public class AddMedicine extends BaseActivity {
             int currentDosage = Integer.parseInt(etDosage.getText().toString());
             etDosage.setText(String.valueOf(currentDosage + 1));
         });
-    }
-
-    private void updateReminderVisibility(boolean isEnabled) {
-        if (isEnabled) {
-            containerReminderTimes.setVisibility(View.VISIBLE);
-            btnAddAnotherTime.setVisibility(View.VISIBLE);
-        } else {
-            containerReminderTimes.setVisibility(View.GONE);
-            btnAddAnotherTime.setVisibility(View.GONE);
-        }
     }
 
     private void addNewReminderTime() {
@@ -357,6 +340,29 @@ public class AddMedicine extends BaseActivity {
             return;
         }
 
+        // Validate that at least one time is set
+        boolean hasValidTime = false;
+        for (String time : reminderTimes) {
+            if (!time.isEmpty() && !time.equals("Select Time")) {
+                hasValidTime = true;
+                break;
+            }
+        }
+        
+        // Also check the first time TextView
+        TextView tvFirstTime = findViewById(R.id.tvReminderTime1);
+        if (tvFirstTime != null) {
+            String firstTime = tvFirstTime.getText().toString().trim();
+            if (!firstTime.isEmpty() && !firstTime.equals("Select Time")) {
+                hasValidTime = true;
+            }
+        }
+        
+        if (!hasValidTime) {
+            Toast.makeText(this, "Please set at least one reminder time", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Get current user information
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -368,7 +374,7 @@ public class AddMedicine extends BaseActivity {
         Medicine medicine = new Medicine();
         medicine.setName(name);
         medicine.setDosage(dosageCount + " pill(s)");
-        medicine.setReminderEnabled(switchReminder.isChecked());
+        medicine.setReminderEnabled(true); // Always enabled since toggle is removed
         medicine.setStartDate(dateFormat.format(fromDate.getTime()));
         medicine.setEndDate(dateFormat.format(toDate.getTime()));
         medicine.setCustomDays(customDays);
@@ -405,16 +411,25 @@ public class AddMedicine extends BaseActivity {
     }
     
     private void saveMedicineToFirebase(Medicine medicine) {
-        // Add reminder times if enabled
-        if (switchReminder.isChecked()) {
-            List<String> validTimes = new ArrayList<>();
-            for (String time : reminderTimes) {
-                if (!time.isEmpty()) {
-                    validTimes.add(time);
+        // Add reminder times
+        List<String> validTimes = new ArrayList<>();
+        for (String time : reminderTimes) {
+            if (!time.isEmpty() && !time.equals("Select Time")) {
+                validTimes.add(time);
+            }
+        }
+        // Also get the first time if it's set
+        TextView tvFirstTime = findViewById(R.id.tvReminderTime1);
+        if (tvFirstTime != null) {
+            String firstTime = tvFirstTime.getText().toString().trim();
+            if (!firstTime.isEmpty() && !firstTime.equals("Select Time")) {
+                // Check if this time is not already in the list
+                if (!validTimes.contains(firstTime)) {
+                    validTimes.add(0, firstTime);
                 }
             }
-            medicine.setReminderTimes(validTimes);
         }
+        medicine.setReminderTimes(validTimes);
         
         // Save to Firebase
         FirebaseMedicineHelper firebaseHelper = new FirebaseMedicineHelper();

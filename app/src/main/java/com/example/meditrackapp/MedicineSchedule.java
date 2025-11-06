@@ -338,10 +338,10 @@ public class MedicineSchedule extends BaseActivity {
         return true;
     }
     
-    /**
-     * Check if today falls within the medicine's start and end date range.
-     * Returns true if no dates are set (backward compatibility).
-     */
+
+    //Check if today falls within the medicine's start and end date range.
+    //Returns true if no dates are set (backward compatibility).
+
     private boolean isWithinDateRange(Medicine medicine, String todayStr) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
@@ -639,10 +639,10 @@ public class MedicineSchedule extends BaseActivity {
                     .setCancelable(false)
                     .show();
             } else {
-                android.util.Log.d("MedicineSchedule", "✓ Exact alarm permission granted");
+                android.util.Log.d("MedicineSchedule", "Exact alarm permission granted");
             }
         } else {
-            android.util.Log.d("MedicineSchedule", "✓ Alarm permission not required for this Android version");
+            android.util.Log.d("MedicineSchedule", "Alarm permission not required for this Android version");
         }
     }
     
@@ -652,19 +652,17 @@ public class MedicineSchedule extends BaseActivity {
         
         if (requestCode == 1001) { // Notification permission
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "✓ Notification permission granted", Toast.LENGTH_SHORT).show();
-                android.util.Log.d("MedicineSchedule", "✓ Notification permission granted");
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
+                android.util.Log.d("MedicineSchedule", "Notification permission granted");
             } else {
-                Toast.makeText(this, "⚠ Notifications disabled - You won't see medicine reminders", Toast.LENGTH_LONG).show();
-                android.util.Log.w("MedicineSchedule", "✗ Notification permission denied");
+                Toast.makeText(this, "Notifications disabled - You won't see medicine reminders", Toast.LENGTH_LONG).show();
+                android.util.Log.w("MedicineSchedule", "Notification permission denied");
             }
         } else if (requestCode == 2001) { // SMS permission
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "✓ SMS permission granted", Toast.LENGTH_SHORT).show();
-                android.util.Log.d("MedicineSchedule", "✓ SMS permission granted");
+                android.util.Log.d("MedicineSchedule", "SMS permission granted");
             } else {
-                Toast.makeText(this, "⚠ SMS alerts disabled - Family won't be notified when you skip medicines", Toast.LENGTH_LONG).show();
-                android.util.Log.w("MedicineSchedule", "✗ SMS permission denied");
+                android.util.Log.w("MedicineSchedule", "SMS permission denied");
             }
         }
     }

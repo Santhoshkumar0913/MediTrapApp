@@ -62,7 +62,7 @@ public class ExpandableMedicineAdapter extends RecyclerView.Adapter<ExpandableMe
         // Set details
         holder.tvMedicineType.setText(m.getMedicineType() != null ? m.getMedicineType() : "Unknown");
         holder.tvFrequency.setText(m.getFrequency() != null && !m.getFrequency().isEmpty() ? m.getFrequency() : "Once a day");
-        holder.tvDuration.setText(getDurationText(m));
+        holder.tvDuration.setText(getSelectedDaysText(m));
         holder.tvStartDate.setText(m.getStartDate() != null && !m.getStartDate().isEmpty() ? m.getStartDate() : "Not set");
         holder.tvEndDate.setText(m.getEndDate() != null && !m.getEndDate().isEmpty() ? m.getEndDate() : "Not set");
 
@@ -117,11 +117,9 @@ public class ExpandableMedicineAdapter extends RecyclerView.Adapter<ExpandableMe
         return R.drawable.ic_tablet;
     }
     
-    private String getDurationText(Medicine m) {
-        if (m.getStartDate() != null && !m.getStartDate().isEmpty() && 
-            m.getEndDate() != null && !m.getEndDate().isEmpty()) {
-            // Could calculate actual days here
-            return "Ongoing";
+    private String getSelectedDaysText(Medicine m) {
+        if (m.getCustomDays() != null && !m.getCustomDays().isEmpty()) {
+            return String.join(", ", m.getCustomDays());
         }
         return "Not specified";
     }
