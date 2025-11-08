@@ -42,7 +42,8 @@ public class HistoryMedicineAdapter extends RecyclerView.Adapter<HistoryMedicine
         h.tvMedName.setText(m.getName() != null ? m.getName() : "--");
 
         StringBuilder meta = new StringBuilder();
-        if (m.getDosage() != null && !m.getDosage().isEmpty()) meta.append(m.getDosage());
+        String formattedDosage = formatDosageForType(m);
+        if (formattedDosage != null && !formattedDosage.isEmpty()) meta.append(formattedDosage);
         if (m.getMedicineType() != null && !m.getMedicineType().isEmpty()) {
             if (meta.length() > 0) meta.append(" • ");
             meta.append(m.getMedicineType());
@@ -75,6 +76,49 @@ public class HistoryMedicineAdapter extends RecyclerView.Adapter<HistoryMedicine
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    /**
+     * Format dosage with appropriate unit based on medicine type.
+     * Same logic as MedicineSchedule.formatDosageForType()
+     */
+    private String formatDosageForType(Medicine med) {
+        String dosage = med.getDosage() != null ? med.getDosage() : "";
+        String type = med.getMedicineType() != null ? med.getMedicineType().toLowerCase() : "";
+        
+        // If dosage already includes a unit that's not pill(s), keep it
+        if (dosage.matches(".*(ml|g|mg|puff\\(s\\)|unit\\(s\\)|tablet\\(s\\)).*")) {
+            return dosage;
+        }
+        
+        // Extract quantity from "X pill(s)" format or plain number
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d+)\\s*pill\\(s\\)$").matcher(dosage.trim());
+        String qty = null;
+        if (m.find()) {
+            qty = m.group(1);
+        }
+        if (qty == null && dosage.matches("^\\d+$")) {
+            qty = dosage;
+        }
+        if (qty == null) {
+            return dosage;
+        }
+        
+        // Determine unit based on medicine type
+        String unit = "pill(s)";
+        if (type.contains("liquid")) {
+            unit = "ml";
+        } else if (type.contains("inhaler")) {
+            unit = "puff(s)";
+        } else if (type.contains("cream")) {
+            unit = "g";
+        } else if (type.contains("injection")) {
+            unit = "unit(s)";
+        } else if (type.contains("tablet")) {
+            unit = "tablet(s)";
+        }
+        
+        return qty + " " + unit;
     }
 
     static class VH extends RecyclerView.ViewHolder {
