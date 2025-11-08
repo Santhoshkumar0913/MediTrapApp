@@ -146,32 +146,45 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="16dp"/>
 
-            <!-- Password -->
-            <EditText
-                android:id="@+id/etPassword"
+            <!-- Reminder Switch -->
+            <LinearLayout
+                android:id="@+id/reminderContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:drawableStart="@drawable/ic_lock"
-                android:drawablePadding="8dp"
+                android:orientation="horizontal"
                 android:padding="12dp"
                 android:background="@drawable/edittext_bg"
                 app:layout_constraintTop_toBottomOf="@id/etEmail"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="16dp"/>
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical">
 
-            <!-- Update Profile Button -->
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Reminder (Alarms &amp; Notifications)"
+                    android:textSize="16sp"
+                    android:textColor="#1E293B" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchReminder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true" />
+            </LinearLayout>
+
+            <!-- Update Button -->
             <Button
                 android:id="@+id/btnUpdateProfile"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Update Profile"
+                android:text="Update"
                 android:textAllCaps="false"
                 android:backgroundTint="#2563EB"
                 android:textColor="#FFFFFF"
-                app:layout_constraintTop_toBottomOf="@id/etPassword"
+                app:layout_constraintTop_toBottomOf="@id/reminderContainer"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginTop="24dp"

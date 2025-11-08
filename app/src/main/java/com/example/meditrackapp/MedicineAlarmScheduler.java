@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 
@@ -30,6 +31,15 @@ public class MedicineAlarmScheduler {
 
     public void scheduleMedicineAlarms(Medicine medicine) {
         if (medicine == null || medicine.getReminderTimes() == null) return;
+        
+        // Check if reminders are enabled
+        SharedPreferences prefs = context.getSharedPreferences("MediTrackPrefs", Context.MODE_PRIVATE);
+        boolean reminderEnabled = prefs.getBoolean("reminder_enabled", true);
+        
+        if (!reminderEnabled) {
+            Log.d(TAG, "Reminders are disabled. Skipping alarm scheduling for " + medicine.getName());
+            return;
+        }
 
         List<String> reminderTimes = medicine.getReminderTimes();
         for (String time : reminderTimes) {

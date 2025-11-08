@@ -1,6 +1,7 @@
 package com.example.meditrackapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -9,22 +10,28 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.List;
+
 public class Settings extends BaseActivity {
 
     private EditText etName, etAge, etFamilyPhone, etPersonalPhone, etEmail;
     private Spinner spinnerGender;
-    private Button btnLogout;
+    private Button btnLogout, btnUpdateProfile;
     private ImageView backArrow;
+    private SwitchCompat switchReminder;
     
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private SharedPreferences prefs;
+    private MedicineAlarmScheduler alarmScheduler;
+    private FirebaseMedicineHelper firebaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +40,9 @@ public class Settings extends BaseActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        prefs = getSharedPreferences("MediTrackPrefs", MODE_PRIVATE);
+        alarmScheduler = new MedicineAlarmScheduler(this);
+        firebaseHelper = new FirebaseMedicineHelper();
 
         etName = findViewById(R.id.etName);
         etAge = findViewById(R.id.etAge);
@@ -41,7 +51,9 @@ public class Settings extends BaseActivity {
         etEmail = findViewById(R.id.etEmail);
         spinnerGender = findViewById(R.id.spinnerGender);
         btnLogout = findViewById(R.id.btnLogout);
+        btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
         backArrow = findViewById(R.id.backArrow);
+        switchReminder = findViewById(R.id.switchReminder);
 
         // Setup spinner
         String[] genders = {"Male", "Female", "Other"};
@@ -50,6 +62,7 @@ public class Settings extends BaseActivity {
         spinnerGender.setAdapter(adapter);
 
         loadUserData();
+        loadReminderPreference();
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
@@ -59,6 +72,8 @@ public class Settings extends BaseActivity {
             startActivity(intent);
             finish();
         });
+
+        btnUpdateProfile.setOnClickListener(v -> updateProfile());
 
         backArrow.setOnClickListener(v -> finish());
     }
@@ -136,5 +151,71 @@ public class Settings extends BaseActivity {
         if (etEmail.getText().toString().trim().isEmpty() && mAuth.getCurrentUser() != null && mAuth.getCurrentUser().getEmail() != null) {
             etEmail.setText(mAuth.getCurrentUser().getEmail());
         }
+    }
+
+    private void loadReminderPreference() {
+        // Default is true (On)
+        boolean reminderEnabled = prefs.getBoolean("reminder_enabled", true);
+        switchReminder.setChecked(reminderEnabled);
+    }
+
+    private void updateProfile() {
+        // Get the current state of reminder switch
+        boolean reminderEnabled = switchReminder.isChecked();
+        
+        // Save reminder preference
+        prefs.edit().putBoolean("reminder_enabled", reminderEnabled).apply();
+        
+        // Handle alarm and notification based on reminder state
+        if (reminderEnabled) {
+            // Reminder is ON - reschedule all alarms
+            rescheduleAllAlarms();
+            Toast.makeText(this, "Profile updated. Reminders enabled.", Toast.LENGTH_SHORT).show();
+        } else {
+            // Reminder is OFF - cancel all alarms
+            cancelAllAlarms();
+            Toast.makeText(this, "Profile updated. Reminders disabled (Silent mode).", Toast.LENGTH_SHORT).show();
+        }
+        
+        // You can add profile update logic here if needed (name, age, etc.)
+    }
+
+    private void cancelAllAlarms() {
+        // Fetch all medicines and cancel their alarms
+        firebaseHelper.getAllMedicines(new FirebaseMedicineHelper.OnMedicinesLoadedListener() {
+            @Override
+            public void onMedicinesLoaded(List<Medicine> medicines) {
+                for (Medicine medicine : medicines) {
+                    alarmScheduler.cancelMedicineAlarms(medicine);
+                }
+                android.util.Log.d("Settings", "All alarms cancelled");
+            }
+
+            @Override
+            public void onError(String error) {
+                android.util.Log.e("Settings", "Error loading medicines: " + error);
+            }
+        });
+    }
+
+    private void rescheduleAllAlarms() {
+        // Fetch all medicines and reschedule their alarms
+        firebaseHelper.getAllMedicines(new FirebaseMedicineHelper.OnMedicinesLoadedListener() {
+            @Override
+            public void onMedicinesLoaded(List<Medicine> medicines) {
+                alarmScheduler.rescheduleAllMedicines(medicines);
+                android.util.Log.d("Settings", "All alarms rescheduled");
+            }
+
+            @Override
+            public void onError(String error) {
+                android.util.Log.e("Settings", "Error loading medicines: " + error);
+            }
+        });
+    }
+
+    public static boolean isReminderEnabled(android.content.Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("MediTrackPrefs", MODE_PRIVATE);
+        return prefs.getBoolean("reminder_enabled", true);
     }
 }

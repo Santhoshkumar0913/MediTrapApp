@@ -11,4 +11,5 @@
     app:itemIconTint="@color/purple_500"
     app:itemTextColor="@color/purple_500"
     app:labelVisibilityMode="labeled"
-    app:elevation="8dp" />
+    app:elevation="8dp"
+    app:itemRippleColor="@android:color/transparent" />

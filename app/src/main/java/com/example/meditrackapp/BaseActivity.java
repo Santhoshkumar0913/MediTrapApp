@@ -68,21 +68,29 @@ public abstract class BaseActivity extends AppCompatActivity implements BottomNa
         if (itemId == R.id.navigation_home) {
             if (!(this instanceof Dashboard)) {
                 startActivity(new Intent(this, Dashboard.class));
+                finish();
+                overridePendingTransition(0, 0);
                 return true;
             }
         } else if (itemId == R.id.navigation_add) {
             if (!(this instanceof MedicineType)) {
                 startActivity(new Intent(this, MedicineType.class));
+                finish();
+                overridePendingTransition(0, 0);
                 return true;
             }
         } else if (itemId == R.id.navigation_schedule) {
             if (!(this instanceof MedicineSchedule)) {
                 startActivity(new Intent(this, MedicineSchedule.class));
+                finish();
+                overridePendingTransition(0, 0);
                 return true;
             }
         } else if (itemId == R.id.navigation_settings) {
             if (!(this instanceof Settings)) {
                 startActivity(new Intent(this, Settings.class));
+                finish();
+                overridePendingTransition(0, 0);
                 return true;
             }
         }
