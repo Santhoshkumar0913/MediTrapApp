@@ -1,6 +1,7 @@
 package com.example.meditrackapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -9,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -22,9 +23,11 @@ public class Settings extends BaseActivity {
     private Spinner spinnerGender;
     private Button btnLogout;
     private ImageView backArrow;
+    private SwitchCompat switchReminder;
     
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,7 @@ public class Settings extends BaseActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        prefs = getSharedPreferences("app_settings", MODE_PRIVATE);
 
         etName = findViewById(R.id.etName);
         etAge = findViewById(R.id.etAge);
@@ -42,6 +46,7 @@ public class Settings extends BaseActivity {
         spinnerGender = findViewById(R.id.spinnerGender);
         btnLogout = findViewById(R.id.btnLogout);
         backArrow = findViewById(R.id.backArrow);
+        switchReminder = findViewById(R.id.switchReminder);
 
         // Setup spinner
         String[] genders = {"Male", "Female", "Other"};
@@ -50,6 +55,17 @@ public class Settings extends BaseActivity {
         spinnerGender.setAdapter(adapter);
 
         loadUserData();
+
+        // Load reminder ringtone preference (default is true)
+        boolean reminderEnabled = prefs.getBoolean("reminder_ringtone_enabled", true);
+        switchReminder.setChecked(reminderEnabled);
+
+        // Save preference when switch is toggled
+        switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("reminder_ringtone_enabled", isChecked).apply();
+            String message = isChecked ? "Reminder ringtone enabled" : "Reminder ringtone disabled (notification only)";
+            Toast.makeText(Settings.this, message, Toast.LENGTH_SHORT).show();
+        });
 
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
