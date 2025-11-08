@@ -603,10 +603,8 @@ public class MedicineSchedule extends BaseActivity {
             if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
                 // Show dialog to user explaining why we need this permission
                 new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("⏰ Alarm & Reminder Permission Required")
-                    .setMessage("To receive medicine reminders at exact times (even when the app is closed), this app needs permission to schedule exact alarms.\n\n" +
-                               "Without this permission, you may miss important medicine reminders.\n\n" +
-                               "Click 'Grant Permission' to enable this critical feature.")
+                    .setTitle("Alarm & Reminder Permission Required")
+                    .setMessage("To receive medicine reminders Click 'Grant Permission' to enable this critical feature.")
                     .setPositiveButton("Grant Permission", (dialog, which) -> {
                         // Open the exact alarm settings page
                         Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
@@ -614,7 +612,7 @@ public class MedicineSchedule extends BaseActivity {
                         try {
                             startActivity(intent);
                         } catch (Exception e) {
-                            Toast.makeText(this, "Unable to open alarm settings. Please enable manually in Settings → Apps → MediTrack → Alarms & Reminders", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Enable Alarms & Reminders", Toast.LENGTH_LONG).show();
                         }
                     })
                     .setNegativeButton("Later", (dialog, which) -> {
