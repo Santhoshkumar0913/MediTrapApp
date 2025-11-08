@@ -57,9 +57,7 @@ public class AddMedicine extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        android.util.Log.d("AddMedicine", "onCreate called");
         setContentView(R.layout.activity_add_medicine);
-        android.util.Log.d("AddMedicine", "setContentView called");
 
         initializeViews();
         setupClickListeners();
@@ -73,7 +71,6 @@ public class AddMedicine extends BaseActivity {
                 medicineType = typeExtra.trim();
             }
         }
-        android.util.Log.d("AddMedicine", "onCreate completed");
     }
 
     private void updateCustomScheduleDisplay() {

@@ -4,17 +4,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 
 //BroadcastReceiver that handles medicine reminder alarms.
 
 public class MedicineAlarmReceiver extends BroadcastReceiver {
-    private static final String TAG = "MedicineAlarmReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -25,11 +26,16 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         String dosage = intent.getStringExtra("dosage");
         String time = intent.getStringExtra("time");
         String medicineType = intent.getStringExtra("medicineType");
-
-        Log.d(TAG, "Alarm received for medicine: " + medicineName + " at " + time);
+        String customDaysStr = intent.getStringExtra("customDays");
 
         if (medicineId == null || medicineName == null || time == null) {
-            Log.e(TAG, "Missing required data in alarm intent");
+            return;
+        }
+
+        // Check if today is a scheduled day for this medicine
+        if (!isTodayScheduled(customDaysStr)) {
+            // Still reschedule for the next occurrence
+            rescheduleAlarmForTomorrow(context, createMedicineObject(medicineId, medicineName, dosage, medicineType, customDaysStr), time);
             return;
         }
 
@@ -40,22 +46,16 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         String status = prefs.getString(doseKey, "Next");
 
         if ("Taken".equals(status) || "Skipped".equals(status)) {
-            Log.d(TAG, "Dose already " + status + ", skipping notification");
             return;
         }
 
         // Check if already fired to prevent duplicate notifications
         if (prefs.getBoolean("fired:" + doseKey, false)) {
-            Log.d(TAG, "Alarm already fired for this dose, skipping");
             return;
         }
 
         // Create a Medicine object for the notification
-        Medicine medicine = new Medicine();
-        medicine.setId(medicineId);
-        medicine.setName(medicineName);
-        medicine.setDosage(dosage);
-        medicine.setMedicineType(medicineType);
+        Medicine medicine = createMedicineObject(medicineId, medicineName, dosage, medicineType, customDaysStr);
 
         // Show notification and play ringtone
         MedicineReminderService reminderService = new MedicineReminderService(context);
@@ -63,8 +63,6 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
 
         // Mark this dose as fired
         prefs.edit().putBoolean("fired:" + doseKey, true).apply();
-
-        Log.d(TAG, "Notification shown for medicine: " + medicineName);
         
         // IMPORTANT: Reschedule this alarm for tomorrow to ensure daily reminders
         rescheduleAlarmForTomorrow(context, medicine, time);
@@ -77,14 +75,91 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         try {
             MedicineAlarmScheduler scheduler = new MedicineAlarmScheduler(context);
             scheduler.scheduleMedicineAlarms(medicine);
-            Log.d(TAG, "Rescheduled alarm for tomorrow: " + medicine.getName() + " at " + time);
         } catch (Exception e) {
-            Log.e(TAG, "Error rescheduling alarm for tomorrow", e);
+            // Error rescheduling alarm for tomorrow
         }
     }
 
     private String getTodayDateString() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
         return sdf.format(new Date());
+    }
+
+    /**
+     * Helper method to create a Medicine object with customDays
+     */
+    private Medicine createMedicineObject(String medicineId, String medicineName, String dosage, String medicineType, String customDaysStr) {
+        Medicine medicine = new Medicine();
+        medicine.setId(medicineId);
+        medicine.setName(medicineName);
+        medicine.setDosage(dosage);
+        medicine.setMedicineType(medicineType);
+        
+        // Restore customDays list from comma-separated string
+        if (customDaysStr != null && !customDaysStr.isEmpty()) {
+            List<String> customDays = Arrays.asList(customDaysStr.split(","));
+            medicine.setCustomDays(customDays);
+        }
+        
+        return medicine;
+    }
+
+    /**
+     * Check if today is in the scheduled days for this medicine.
+     * @param customDaysStr Comma-separated list of scheduled days (e.g., "Monday,Wednesday,Friday")
+     * @return true if today is scheduled, false otherwise
+     */
+    private boolean isTodayScheduled(String customDaysStr) {
+        // If no custom days specified, treat as daily (scheduled every day)
+        if (customDaysStr == null || customDaysStr.isEmpty()) {
+            return true;
+        }
+
+        // Get current day of week
+        Calendar calendar = Calendar.getInstance();
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        String todayFull = getDayStringFromCalendar(dayOfWeek); // e.g., "Monday"
+        String todayShort = todayFull.length() >= 3 ? todayFull.substring(0, 3) : todayFull; // e.g., "Mon"
+
+        // Parse scheduled days
+        String[] scheduledDays = customDaysStr.split(",");
+        for (String day : scheduledDays) {
+            if (day == null) continue;
+            String d = day.trim();
+            
+            // Check full name (e.g., "Monday")
+            if (d.equalsIgnoreCase(todayFull)) {
+                return true;
+            }
+            // Check short name (e.g., "Mon")
+            if (d.equalsIgnoreCase(todayShort)) {
+                return true;
+            }
+            // Check numeric format (1=Sunday, 2=Monday, etc.)
+            if (d.matches("[1-7]")) {
+                int scheduledDay = Integer.parseInt(d);
+                if (scheduledDay == dayOfWeek) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Convert Calendar day of week to full day name.
+     */
+    private String getDayStringFromCalendar(int dayOfWeek) {
+        switch (dayOfWeek) {
+            case Calendar.SUNDAY: return "Sunday";
+            case Calendar.MONDAY: return "Monday";
+            case Calendar.TUESDAY: return "Tuesday";
+            case Calendar.WEDNESDAY: return "Wednesday";
+            case Calendar.THURSDAY: return "Thursday";
+            case Calendar.FRIDAY: return "Friday";
+            case Calendar.SATURDAY: return "Saturday";
+            default: return "";
+        }
     }
 }
