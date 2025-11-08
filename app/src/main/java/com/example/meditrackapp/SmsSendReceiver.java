@@ -17,6 +17,8 @@ public class SmsSendReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         String key = intent.getStringExtra("logKey");
         if (key == null || key.isEmpty()) return;
+        
+        android.util.Log.d("SmsSendReceiver", "Received action: " + action + ", logKey: " + key);
 
         DatabaseReference ref = FirebaseDatabase
                 .getInstance("https://meditrack-b0746-default-rtdb.firebaseio.com")
@@ -62,7 +64,9 @@ public class SmsSendReceiver extends BroadcastReceiver {
 
         try {
             ref.updateChildren(map);
-        } catch (Exception ignored) {
+            android.util.Log.d("SmsSendReceiver", "Updated SMS log with status: " + map.toString());
+        } catch (Exception e) {
+            android.util.Log.e("SmsSendReceiver", "Error updating SMS log", e);
         }
     }
 }
