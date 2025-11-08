@@ -8,7 +8,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,7 +38,6 @@ public class NearByLocationActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS = 2;
 
-    private static final String TAG = "NearByLocation";
 
     private FusedLocationProviderClient fusedLocationClient;
     private TextView tvCurrentLocation;
@@ -75,14 +73,12 @@ public class NearByLocationActivity extends AppCompatActivity {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
-                    Log.e(TAG, "Location result is null");
                     return;
                 }
 
                 Location location = locationResult.getLastLocation();
                 if (location != null) {
                     lastKnownLocation = location;
-                    Log.d(TAG, "Location updated: Lat=" + location.getLatitude() + ", Lon=" + location.getLongitude());
 
                     fusedLocationClient.removeLocationUpdates(locationCallback);
                     getAddressFromLocation(location);
@@ -140,7 +136,6 @@ public class NearByLocationActivity extends AppCompatActivity {
                     try {
                         ((ResolvableApiException) e).startResolutionForResult(NearByLocationActivity.this, REQUEST_CHECK_SETTINGS);
                     } catch (Exception sendEx) {
-                        Log.e(TAG, "Error starting resolution: " + sendEx.getMessage());
                         Toast.makeText(this, "Please enable location services", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -148,7 +143,6 @@ public class NearByLocationActivity extends AppCompatActivity {
                 }
             });
         } catch (Exception ex) {
-            Log.e(TAG, "checkLocationSettings error: " + ex.getMessage());
             getDeviceLocation();
         }
     }
@@ -167,7 +161,6 @@ public class NearByLocationActivity extends AppCompatActivity {
                 public void onSuccess(Location location) {
                     if (location != null) {
                         lastKnownLocation = location;
-                        Log.d(TAG, "Last known location: Lat=" + location.getLatitude() + ", Lon=" + location.getLongitude());
                         getAddressFromLocation(location);
                         findNearbyMedicalShops(location);
                     } else {
@@ -178,7 +171,6 @@ public class NearByLocationActivity extends AppCompatActivity {
             });
 
         } catch (Exception e) {
-            Log.e(TAG, "Error getting location: " + e.getMessage());
             tvCurrentLocation.setText("Unable to get location. Please try again.");
             Toast.makeText(this, "Error getting location", Toast.LENGTH_SHORT).show();
         }
@@ -200,7 +192,7 @@ public class NearByLocationActivity extends AppCompatActivity {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
 
         } catch (Exception e) {
-            Log.e(TAG, "Error requesting location updates: " + e.getMessage());
+            // Error requesting location updates
         }
     }
 
@@ -233,15 +225,12 @@ public class NearByLocationActivity extends AppCompatActivity {
 
                 String displayAddress = "Current Location:\n" + addressStr.toString().trim();
                 tvCurrentLocation.setText(displayAddress);
-                Log.d(TAG, "Address: " + displayAddress);
             } else {
                 String coords = "Current Location:\nLat: " + String.format("%.6f", location.getLatitude()) +
                         "\nLon: " + String.format("%.6f", location.getLongitude());
                 tvCurrentLocation.setText(coords);
-                Log.d(TAG, coords);
             }
         } catch (IOException e) {
-            Log.e(TAG, "Geocoding error: " + e.getMessage());
             String coords = "Current Location:\nLat: " + String.format("%.6f", location.getLatitude()) +
                     "\nLon: " + String.format("%.6f", location.getLongitude());
             tvCurrentLocation.setText(coords);
@@ -261,12 +250,10 @@ public class NearByLocationActivity extends AppCompatActivity {
         try {
             if (mapIntent.resolveActivity(getPackageManager()) != null) {
                 startActivity(mapIntent);
-                Log.d(TAG, "Opened Google Maps with URI: " + uri);
             } else {
                 openInBrowser(location);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error opening maps: " + e.getMessage());
             openInBrowser(location);
         }
     }
@@ -277,7 +264,6 @@ public class NearByLocationActivity extends AppCompatActivity {
                 location.getLatitude() + "," + location.getLongitude() + ",15z";
         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(webUri));
         startActivity(webIntent);
-        Log.d(TAG, "Opened browser with URI: " + webUri);
     }
 
     @Override

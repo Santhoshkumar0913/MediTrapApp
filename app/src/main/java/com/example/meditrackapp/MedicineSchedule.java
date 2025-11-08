@@ -73,7 +73,6 @@ public class MedicineSchedule extends BaseActivity {
                 if (latest != null && !latest.equals(d.status)) {
                     d.status = latest;
                     anyStatusChanged = true;
-                    android.util.Log.d("MedicineSchedule", "Status changed for " + d.medicine.getName() + " at " + d.time + ": " + d.status);
                 }
             }
             // Recompute next dose and refresh UI if anything changed
@@ -272,12 +271,8 @@ public class MedicineSchedule extends BaseActivity {
      */
     private void scheduleAlarmsForTodaysMedicines() {
         if (todaysMedicines == null || todaysMedicines.isEmpty()) {
-            android.util.Log.d("MedicineSchedule", "No medicines to schedule alarms for");
             return;
         }
-        
-        android.util.Log.d("MedicineSchedule", "=== SCHEDULING GLOBAL ALARMS ===");
-        android.util.Log.d("MedicineSchedule", "Total medicines to schedule: " + todaysMedicines.size());
         
         int scheduledCount = 0;
         for (Medicine medicine : todaysMedicines) {
@@ -287,12 +282,8 @@ public class MedicineSchedule extends BaseActivity {
                 // Schedule new alarms
                 alarmScheduler.scheduleMedicineAlarms(medicine);
                 scheduledCount++;
-                android.util.Log.d("MedicineSchedule", "✓ Scheduled alarm for: " + medicine.getName() + 
-                    " (" + medicine.getReminderTimes().size() + " times)");
             }
         }
-        
-        android.util.Log.d("MedicineSchedule", "=== COMPLETED: Scheduled " + scheduledCount + " medicines ===");
     }
 
     private String getTodayDateString() {
@@ -306,7 +297,6 @@ public class MedicineSchedule extends BaseActivity {
 
         // Check if today falls within the medicine's date range (startDate to endDate)
         if (!isWithinDateRange(medicine, today)) {
-            android.util.Log.d("MedicineSchedule", medicine.getName() + " is NOT within date range for today: " + today);
             return false;
         }
 
@@ -371,7 +361,6 @@ public class MedicineSchedule extends BaseActivity {
             // Within range (or no range specified)
             return true;
         } catch (Exception e) {
-            android.util.Log.e("MedicineSchedule", "Error checking date range", e);
             return true; // On error, allow the medicine to show
         }
     }
@@ -394,7 +383,6 @@ public class MedicineSchedule extends BaseActivity {
         if (todaysMedicines.isEmpty()) return;
 
         String todayKey = getTodayDateString();
-        android.util.Log.d("MedicineSchedule", "Building doses for today: " + todayKey);
         
         for (Medicine med : todaysMedicines) {
             List<String> times = med.getReminderTimes();
@@ -405,8 +393,6 @@ public class MedicineSchedule extends BaseActivity {
                 d.time = time;
                 d.key = buildDoseKey(med.getId(), todayKey, time);
                 d.status = getStoredDoseStatus(d.key);
-                
-                android.util.Log.d("MedicineSchedule", "Dose: " + med.getName() + " at " + time + " -> Status: " + d.status + " (Key: " + d.key + ")");
                 
                 todaysDoses.add(d);
             }
@@ -459,9 +445,9 @@ public class MedicineSchedule extends BaseActivity {
             tvNextMedicineName.setText(nextDose.medicine.getName());
             String when = nextDose.medicine.getWhenToTake();
             if (when != null && !when.isEmpty()) {
-                tvNextMedicineDosage.setText(when + " • " + formatDosageForType(nextDose.medicine));
+                tvNextMedicineDosage.setText(when + " • " + formatDosageForType(nextDose.medicine) + " • " + nextDose.time);
             } else {
-                tvNextMedicineDosage.setText(formatDosageForType(nextDose.medicine));
+                tvNextMedicineDosage.setText(formatDosageForType(nextDose.medicine) + " • " + nextDose.time);
             }
 
             imgNextMedicine.setImageResource(getMedicineTypeIcon(nextDose.medicine.getName()));
@@ -575,7 +561,6 @@ public class MedicineSchedule extends BaseActivity {
     private void markDoseAsTaken(Dose d) {
         storeDoseStatus(d.key, "Taken");
         d.status = "Taken";
-        android.util.Log.d("MedicineSchedule", "Marked as TAKEN: " + d.key + " = Taken");
         Toast.makeText(MedicineSchedule.this, d.medicine.getName() + " marked as taken", Toast.LENGTH_SHORT).show();
         // Ensure ringtone and notification are stopped and status persisted globally
         MedicineReminderService.updateMedicineStatus(this, d.medicine.getId(), d.time, "Taken");
@@ -586,7 +571,6 @@ public class MedicineSchedule extends BaseActivity {
     private void skipDose(Dose d) {
         storeDoseStatus(d.key, "Skipped");
         d.status = "Skipped";
-        android.util.Log.d("MedicineSchedule", "Marked as SKIPPED: " + d.key + " = Skipped");
         Toast.makeText(this, d.medicine.getName() + " skipped", Toast.LENGTH_SHORT).show();
         // Ensure ringtone and notification are stopped and status persisted globally
         MedicineReminderService.updateMedicineStatus(this, d.medicine.getId(), d.time, "Skipped");
@@ -639,10 +623,8 @@ public class MedicineSchedule extends BaseActivity {
                     .setCancelable(false)
                     .show();
             } else {
-                android.util.Log.d("MedicineSchedule", "Exact alarm permission granted");
             }
         } else {
-            android.util.Log.d("MedicineSchedule", "Alarm permission not required for this Android version");
         }
     }
     
@@ -653,17 +635,10 @@ public class MedicineSchedule extends BaseActivity {
         if (requestCode == 1001) { // Notification permission
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
-                android.util.Log.d("MedicineSchedule", "Notification permission granted");
             } else {
                 Toast.makeText(this, "Notifications disabled - You won't see medicine reminders", Toast.LENGTH_LONG).show();
-                android.util.Log.w("MedicineSchedule", "Notification permission denied");
             }
         } else if (requestCode == 2001) { // SMS permission
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                android.util.Log.d("MedicineSchedule", "SMS permission granted");
-            } else {
-                android.util.Log.w("MedicineSchedule", "SMS permission denied");
-            }
         }
     }
 

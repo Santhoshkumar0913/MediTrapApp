@@ -188,12 +188,10 @@ public class Settings extends BaseActivity {
                 for (Medicine medicine : medicines) {
                     alarmScheduler.cancelMedicineAlarms(medicine);
                 }
-                android.util.Log.d("Settings", "All alarms cancelled");
             }
 
             @Override
             public void onError(String error) {
-                android.util.Log.e("Settings", "Error loading medicines: " + error);
             }
         });
     }
@@ -204,12 +202,10 @@ public class Settings extends BaseActivity {
             @Override
             public void onMedicinesLoaded(List<Medicine> medicines) {
                 alarmScheduler.rescheduleAllMedicines(medicines);
-                android.util.Log.d("Settings", "All alarms rescheduled");
             }
 
             @Override
             public void onError(String error) {
-                android.util.Log.e("Settings", "Error loading medicines: " + error);
             }
         });
     }

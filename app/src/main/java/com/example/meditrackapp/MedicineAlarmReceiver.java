@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -17,7 +16,6 @@ import java.util.Locale;
 //BroadcastReceiver that handles medicine reminder alarms.
 
 public class MedicineAlarmReceiver extends BroadcastReceiver {
-    private static final String TAG = "MedicineAlarmReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -30,21 +28,16 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         String medicineType = intent.getStringExtra("medicineType");
         String customDaysStr = intent.getStringExtra("customDays");
 
-        Log.d(TAG, "Alarm received for medicine: " + medicineName + " at " + time);
-
         if (medicineId == null || medicineName == null || time == null) {
-            Log.e(TAG, "Missing required data in alarm intent");
             return;
         }
 
         // Check if today is a scheduled day for this medicine
         if (!isTodayScheduled(customDaysStr)) {
-            Log.d(TAG, "Today is not a scheduled day for " + medicineName + ". Skipping notification.");
             // Still reschedule for the next occurrence
             rescheduleAlarmForTomorrow(context, createMedicineObject(medicineId, medicineName, dosage, medicineType, customDaysStr), time);
             return;
         }
-        Log.d(TAG, "Today IS a scheduled day for " + medicineName + ". Proceeding with notification.");
 
         // Check if this dose has already been taken or skipped today
         String dateKey = getTodayDateString();
@@ -53,13 +46,11 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         String status = prefs.getString(doseKey, "Next");
 
         if ("Taken".equals(status) || "Skipped".equals(status)) {
-            Log.d(TAG, "Dose already " + status + ", skipping notification");
             return;
         }
 
         // Check if already fired to prevent duplicate notifications
         if (prefs.getBoolean("fired:" + doseKey, false)) {
-            Log.d(TAG, "Alarm already fired for this dose, skipping");
             return;
         }
 
@@ -72,8 +63,6 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
 
         // Mark this dose as fired
         prefs.edit().putBoolean("fired:" + doseKey, true).apply();
-
-        Log.d(TAG, "Notification shown for medicine: " + medicineName);
         
         // IMPORTANT: Reschedule this alarm for tomorrow to ensure daily reminders
         rescheduleAlarmForTomorrow(context, medicine, time);
@@ -86,9 +75,8 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         try {
             MedicineAlarmScheduler scheduler = new MedicineAlarmScheduler(context);
             scheduler.scheduleMedicineAlarms(medicine);
-            Log.d(TAG, "Rescheduled alarm for tomorrow: " + medicine.getName() + " at " + time);
         } catch (Exception e) {
-            Log.e(TAG, "Error rescheduling alarm for tomorrow", e);
+            // Error rescheduling alarm for tomorrow
         }
     }
 

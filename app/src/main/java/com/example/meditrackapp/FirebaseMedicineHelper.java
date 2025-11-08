@@ -1,7 +1,5 @@
 package com.example.meditrackapp;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,7 +21,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FirebaseMedicineHelper {
-    private static final String TAG = "FirebaseMedicineHelper";
     private static final String MEDICINES_PATH = "medicines";
     
     private DatabaseReference databaseRef;
@@ -71,10 +68,6 @@ public class FirebaseMedicineHelper {
         medicineValues.put("userName", medicine.getUserName());
         medicineValues.put("whenToTake", medicine.getWhenToTake());
         
-        Log.d(TAG, "Saving medicine to Firebase: " + medicine.getName());
-        Log.d(TAG, "User ID: " + userId);
-        Log.d(TAG, "Medicine ID: " + medicineId);
-        
         databaseRef.child(MEDICINES_PATH)
                 .child(userId)
                 .child(medicineId)
@@ -82,14 +75,12 @@ public class FirebaseMedicineHelper {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Medicine added successfully to Firebase");
                         listener.onMedicineAdded(true, "Medicine added successfully");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Failed to add medicine to Firebase: " + e.getMessage());
                         listener.onMedicineAdded(false, "Failed to add medicine: " + e.getMessage());
                     }
                 });
@@ -174,7 +165,7 @@ public class FirebaseMedicineHelper {
                                 
                                 medicineList.add(medicine);
                             } catch (Exception e) {
-                                Log.e(TAG, "Error parsing medicine data", e);
+                                // Error parsing medicine data
                             }
                         }
                         
