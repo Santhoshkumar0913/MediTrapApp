@@ -84,7 +84,13 @@ public class MedicineAlarmScheduler {
             intent.putExtra("dosage", medicine.getDosage());
             intent.putExtra("time", time);
             intent.putExtra("medicineType", medicine.getMedicineType());
-
+            
+            // Pass customDays as comma-separated string for day validation
+            if (medicine.getCustomDays() != null && !medicine.getCustomDays().isEmpty()) {
+                String customDaysStr = String.join(",", medicine.getCustomDays());
+                intent.putExtra("customDays", customDaysStr);
+            }
+            
             // Use unique request code based on medicine ID and time
             int requestCode = getRequestCode(medicine.getId(), time);
 
