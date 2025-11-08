@@ -61,8 +61,12 @@ public class MedicineAlarmScheduler {
             alarmTime.set(Calendar.MINUTE, parsedTime.get(Calendar.MINUTE));
             alarmTime.set(Calendar.SECOND, 0);
             alarmTime.set(Calendar.MILLISECOND, 0);
+            
+            // Subtract 30 seconds to show notification 30 seconds before scheduled time
+            // This provides a grace period and ensures notification is visible before the actual time
+            alarmTime.add(Calendar.SECOND, -30);
 
-            // If the time has already passed today, schedule for tomorrow
+            // If the time has already passed today (including the 30-second advance), schedule for tomorrow
             if (alarmTime.getTimeInMillis() <= System.currentTimeMillis()) {
                 alarmTime.add(Calendar.DAY_OF_MONTH, 1);
             }

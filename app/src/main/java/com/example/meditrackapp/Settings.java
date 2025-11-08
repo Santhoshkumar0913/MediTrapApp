@@ -60,11 +60,9 @@ public class Settings extends BaseActivity {
         boolean reminderEnabled = prefs.getBoolean("reminder_ringtone_enabled", true);
         switchReminder.setChecked(reminderEnabled);
 
-        // Save preference when switch is toggled
+        // Save preference when switch is toggled (no toast, will show on update)
         switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("reminder_ringtone_enabled", isChecked).apply();
-            String message = isChecked ? "Reminder ringtone enabled" : "Reminder ringtone disabled (notification only)";
-            Toast.makeText(Settings.this, message, Toast.LENGTH_SHORT).show();
         });
 
         btnLogout.setOnClickListener(v -> {

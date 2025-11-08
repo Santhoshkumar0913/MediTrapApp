@@ -421,9 +421,13 @@ public class MedicineSchedule extends BaseActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
             Calendar now = Calendar.getInstance();
             long nowMillis = now.getTimeInMillis();
+            
+            // Grace period: 5 minutes after scheduled time
+            final long GRACE_PERIOD_MS = 5 * 60 * 1000;
 
             long bestDelta = Long.MAX_VALUE;
             Dose best = null;
+            Dose activeDose = null; // Dose currently ringing (within grace period)
 
             for (Dose d : todaysDoses) {
                 if ("Taken".equals(d.status) || "Skipped".equals(d.status)) continue;
@@ -437,14 +441,29 @@ public class MedicineSchedule extends BaseActivity {
                 medCal.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH));
 
                 long delta = medCal.getTimeInMillis() - nowMillis;
-                if (delta >= 0 && delta < bestDelta) {
+                
+                // Check if this dose is currently active (time has passed but within grace period)
+                if (delta < 0 && Math.abs(delta) <= GRACE_PERIOD_MS) {
+                    // This is an active dose that should be taken now
+                    if (activeDose == null || delta > (medCal.getTimeInMillis() - nowMillis)) {
+                        activeDose = d;
+                    }
+                }
+                // Otherwise, find the next upcoming dose
+                else if (delta >= 0 && delta < bestDelta) {
                     bestDelta = delta;
                     best = d;
                 }
             }
 
-            nextDose = best;
+            // Prioritize active dose over future dose
+            nextDose = (activeDose != null) ? activeDose : best;
+            
+            if (nextDose != null) {
+                android.util.Log.d("MedicineSchedule", "Next dose found: " + nextDose.medicine.getName() + " at " + nextDose.time + " (status: " + nextDose.status + ")");
+            }
         } catch (Exception e) {
+            android.util.Log.e("MedicineSchedule", "Error finding next dose", e);
             nextDose = null;
         }
     }
