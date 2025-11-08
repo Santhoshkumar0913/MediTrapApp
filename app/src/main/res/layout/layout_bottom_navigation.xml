@@ -12,4 +12,5 @@
     app:itemTextColor="@color/purple_500"
     app:labelVisibilityMode="labeled"
     app:elevation="8dp"
-    app:itemRippleColor="@android:color/transparent" />
+    app:itemRippleColor="@android:color/transparent"
+    app:itemActiveIndicatorStyle="@null" />
