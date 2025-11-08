@@ -5,9 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Build;
-
 
 import androidx.core.app.NotificationCompat;
 
@@ -20,13 +20,13 @@ import java.util.Locale;
 
 public class MedicineReminderService {
     private static final String CHANNEL_ID = "medicine_reminder_channel";
-    private static final int NOTIFICATION_ID = 1001;
+    private static final int BASE_NOTIFICATION_ID = 1001;
     
     private Context context;
     private static MediaPlayer mediaPlayer;
     private static boolean isPlaying = false;
-    private static String currentMedicineId;
-    private static String currentDoseTime;
+    private static String lastMedicineIdForRingtone;
+    private static String lastDoseTimeForRingtone;
     
     public MedicineReminderService(Context context) {
         this.context = context;
@@ -47,49 +47,80 @@ public class MedicineReminderService {
     }
     
     public void showMedicineReminder(Medicine medicine, String time) {
-        // Save the current medicine ID and dose time
-        currentMedicineId = medicine.getId();
-        currentDoseTime = time;
+        // Save for ringtone management only
+        lastMedicineIdForRingtone = medicine.getId();
+        lastDoseTimeForRingtone = time;
         
-        // Create intent for "Mark as Taken" action
+        // Generate unique notification ID based on medicine ID and time
+        int notificationId = generateNotificationId(medicine.getId(), time);
+        
+        android.util.Log.d("MedicineReminder", "Showing notification for " + medicine.getName() + " at " + time + " (ID: " + notificationId + ")");
+        
+        // Create intent for "Mark as Taken" action with unique request codes
         Intent takenIntent = new Intent(context, NotificationActionReceiver.class);
         takenIntent.setAction("MARK_AS_TAKEN");
         takenIntent.putExtra("medicineId", medicine.getId());
         takenIntent.putExtra("doseTime", time);
+        takenIntent.putExtra("notificationId", notificationId);
+        int takenRequestCode = notificationId * 10 + 1;
         PendingIntent takenPendingIntent = PendingIntent.getBroadcast(
-                context, 0, takenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                context, takenRequestCode, takenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Create intent for "Skip" action
+        // Create intent for "Skip" action with unique request codes
         Intent skipIntent = new Intent(context, NotificationActionReceiver.class);
         skipIntent.setAction("SKIP_MEDICINE");
         skipIntent.putExtra("medicineId", medicine.getId());
         skipIntent.putExtra("doseTime", time);
+        skipIntent.putExtra("notificationId", notificationId);
+        int skipRequestCode = notificationId * 10 + 2;
         PendingIntent skipPendingIntent = PendingIntent.getBroadcast(
-                context, 1, skipIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                context, skipRequestCode, skipIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
         // Create intent to open the app when notification is clicked
-        Intent openAppIntent = new Intent(context, MainActivity.class);
+        Intent openAppIntent = new Intent(context, Dashboard.class);
         openAppIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        int openRequestCode = notificationId * 10 + 3;
         PendingIntent openAppPendingIntent = PendingIntent.getActivity(
-                context, 2, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                context, openRequestCode, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Build the notification
+        // Create full-screen intent to wake screen and show notification even when locked
+        Intent fullScreenIntent = new Intent(context, Dashboard.class);
+        fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        int fullScreenRequestCode = notificationId * 10 + 4;
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+                context, fullScreenRequestCode, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        
+        // Build the notification with full-screen intent to wake screen
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Medicine Reminder")
                 .setContentText("Time to take " + medicine.getName() + " - " + medicine.getDosage() + " at " + time)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(openAppPendingIntent)
+                .setFullScreenIntent(fullScreenPendingIntent, true)  // This wakes the screen
                 .setAutoCancel(false)
+                .setOngoing(false)
+                .setVibrate(new long[]{0, 500, 200, 500})
+                .setLights(0xFF0000FF, 1000, 1000)
                 .addAction(R.drawable.ic_check, "Mark as Taken", takenPendingIntent)
                 .addAction(R.drawable.ic_skip, "Skip", skipPendingIntent);
         
-        // Show the notification
+        // Show the notification (always, regardless of ringtone setting)
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
+        notificationManager.notify(notificationId, builder.build());
         
-        // Play the ringtone
-        playRingtone();
+        android.util.Log.d("MedicineReminder", "Notification shown with ID: " + notificationId);
+        
+        // Check if ringtone is enabled in settings
+        SharedPreferences prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE);
+        boolean ringtoneEnabled = prefs.getBoolean("reminder_ringtone_enabled", true);
+        
+        // Play the ringtone only if enabled
+        if (ringtoneEnabled) {
+            playRingtone();
+        }
     }
     
     private void playRingtone() {
@@ -113,16 +144,21 @@ public class MedicineReminderService {
     }
     
     public static void updateMedicineStatus(Context context, String medicineId, String status) {
-        updateMedicineStatus(context, medicineId, currentDoseTime, status);
+        updateMedicineStatus(context, medicineId, lastDoseTimeForRingtone, status);
     }
 
     public static void updateMedicineStatus(Context context, String medicineId, String time, String status) {
+        android.util.Log.d("MedicineReminder", "updateMedicineStatus called: medicineId=" + medicineId + ", time=" + time + ", status=" + status);
         // Stop the ringtone
         stopRingtone();
         
-        // Cancel the notification
+        // Cancel the specific notification
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-        notificationManager.cancel(NOTIFICATION_ID);
+        if (time != null && !time.isEmpty()) {
+            int notificationId = generateNotificationId(medicineId, time);
+            notificationManager.cancel(notificationId);
+            android.util.Log.d("MedicineReminder", "Cancelled notification ID: " + notificationId);
+        }
         
         // Update the medicine status in Firebase under userId/medicineId
         String userIdForPath = null;
@@ -181,6 +217,7 @@ public class MedicineReminderService {
         if (time != null && !time.isEmpty()) {
             String dateKey = getTodayDateString();
             String key = "dose:" + medicineId + ":" + dateKey + ":" + time;
+            android.util.Log.d("MedicineReminder", "Storing dose status: key=" + key + ", status=" + status);
             context.getSharedPreferences("dose_status", Context.MODE_PRIVATE)
                     .edit()
                     .putString(key, status)
@@ -192,7 +229,10 @@ public class MedicineReminderService {
                 i.putExtra("time", time);
                 i.putExtra("status", status);
                 context.sendBroadcast(i);
-            } catch (Exception ignored) { }
+                android.util.Log.d("MedicineReminder", "Broadcast sent for dose status update");
+            } catch (Exception e) {
+                android.util.Log.e("MedicineReminder", "Error sending broadcast", e);
+            }
         }
     }
     
@@ -201,20 +241,28 @@ public class MedicineReminderService {
     }
     
     public static String getCurrentMedicineId() {
-        return currentMedicineId;
+        return lastMedicineIdForRingtone;
     }
-
+    
     public static String getCurrentDoseTime() {
-        return currentDoseTime;
+        return lastDoseTimeForRingtone;
     }
-
-    public static void cancelNotification(Context context) {
+    
+    public static void cancelNotification(Context context, String medicineId, String time) {
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         if (notificationManager != null) {
-            notificationManager.cancel(NOTIFICATION_ID);
+            int notificationId = generateNotificationId(medicineId, time);
+            notificationManager.cancel(notificationId);
         }
     }
-
+    
+    // Generate unique notification ID based on medicine ID and time
+    private static int generateNotificationId(String medicineId, String time) {
+        if (medicineId == null || time == null) return BASE_NOTIFICATION_ID;
+        String combined = medicineId + time;
+        return BASE_NOTIFICATION_ID + Math.abs(combined.hashCode() % 10000);
+    }
+    
     private static String getTodayDateString() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
         return sdf.format(new Date());

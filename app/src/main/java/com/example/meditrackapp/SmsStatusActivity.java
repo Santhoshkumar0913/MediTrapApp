@@ -81,9 +81,11 @@ public class SmsStatusActivity extends BaseActivity {
                     String dosage = String.valueOf(child.child("dosage").getValue());
                     String scheduledTime = String.valueOf(child.child("scheduledTime").getValue());
                     String message = String.valueOf(child.child("message").getValue());
+                    String status = String.valueOf(child.child("status").getValue());
+                    if (status == null || "null".equals(status)) status = "UNKNOWN";
                     long ts = 0L;
                     try { ts = child.child("timestamp").getValue(Long.class); } catch (Exception ignored) {}
-                    items.add(new SmsStatusItem(familyPhone, medicineName, dosage, scheduledTime, message, ts));
+                    items.add(new SmsStatusItem(familyPhone, medicineName, dosage, scheduledTime, message, status, ts));
                 }
                 // Sort newest first
                 items.sort((a, b) -> Long.compare(b.timestamp, a.timestamp));
@@ -139,15 +141,17 @@ public class SmsStatusActivity extends BaseActivity {
         final String dosage;
         final String scheduledTime;
         final String message;
+        final String status;
         final long timestamp;
 
         SmsStatusItem(String familyPhone, String medicineName, String dosage,
-                       String scheduledTime, String message, long timestamp) {
+                       String scheduledTime, String message, String status, long timestamp) {
             this.familyPhone = familyPhone;
             this.medicineName = medicineName;
             this.dosage = dosage;
             this.scheduledTime = scheduledTime;
             this.message = message;
+            this.status = status;
             this.timestamp = timestamp;
         }
     }

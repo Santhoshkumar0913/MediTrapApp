@@ -51,11 +51,13 @@ public class SmsNotifier {
 
                 String userName = user.getName() != null ? user.getName() : (medicine.getUserName() != null ? medicine.getUserName() : "User");
                 String medName = medicine.getName() != null ? medicine.getName() : "medicine";
-                String dosage = medicine.getDosage() != null ? medicine.getDosage() : "";
+                String dosage = formatDosageForType(medicine);
                 String time = scheduledTime;
 
                 String message = buildMessage(userName, medName, dosage, time);
                 String logKey = logSmsPending(currentUser.getUid(), familyPhone, userName, medName, dosage, time, message);
+                android.util.Log.d("SmsNotifier", "SMS log created with key: " + logKey + ", status: PENDING");
+                android.util.Log.d("SmsNotifier", "Message: " + message);
                 try {
                     SmsManager smsManager = SmsManager.getDefault();
                     // Build sent/delivered PendingIntents to track status
@@ -138,6 +140,49 @@ public class SmsNotifier {
             ref.updateChildren(map);
         } catch (Exception ignored) {
         }
+    }
+
+    /**
+     * Format dosage with appropriate unit based on medicine type.
+     * Same logic as MedicineSchedule.formatDosageForType()
+     */
+    private static String formatDosageForType(Medicine med) {
+        String dosage = med.getDosage() != null ? med.getDosage() : "";
+        String type = med.getMedicineType() != null ? med.getMedicineType().toLowerCase() : "";
+        
+        // If dosage already includes a unit that's not pill(s), keep it
+        if (dosage.matches(".*(ml|g|mg|puff\\(s\\)|unit\\(s\\)|tablet\\(s\\)).*")) {
+            return dosage;
+        }
+        
+        // Extract quantity from "X pill(s)" format or plain number
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d+)\\s*pill\\(s\\)$").matcher(dosage.trim());
+        String qty = null;
+        if (m.find()) {
+            qty = m.group(1);
+        }
+        if (qty == null && dosage.matches("^\\d+$")) {
+            qty = dosage;
+        }
+        if (qty == null) {
+            return dosage;
+        }
+        
+        // Determine unit based on medicine type
+        String unit = "pill(s)";
+        if (type.contains("liquid")) {
+            unit = "ml";
+        } else if (type.contains("inhaler")) {
+            unit = "puff(s)";
+        } else if (type.contains("cream")) {
+            unit = "g";
+        } else if (type.contains("injection")) {
+            unit = "unit(s)";
+        } else if (type.contains("tablet")) {
+            unit = "tablet(s)";
+        }
+        
+        return qty + " " + unit;
     }
 }
 
