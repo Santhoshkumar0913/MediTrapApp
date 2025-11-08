@@ -90,43 +90,50 @@ public class MedicineAlarmScheduler {
             );
 
             // Schedule the alarm using the most reliable method for each Android version
+            // Use setAlarmClock for maximum reliability - it bypasses Doze mode and shows in status bar
             if (alarmManager != null) {
                 try {
+                    // Create a PendingIntent for the alarm clock info (shown in status bar)
+                    Intent showIntent = new Intent(context, Dashboard.class);
+                    PendingIntent showPendingIntent = PendingIntent.getActivity(
+                            context,
+                            requestCode + 50000,
+                            showIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                    );
+                    
+                    AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(
+                            alarmTime.getTimeInMillis(),
+                            showPendingIntent
+                    );
+                    
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         // Android 12+: Check if we can schedule exact alarms
                         if (alarmManager.canScheduleExactAlarms()) {
+                            // Use setAlarmClock - most reliable, bypasses Doze, works with screen off
+                            alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+                            Log.d(TAG, "Scheduled AlarmClock (Android 12+) for " + medicine.getName());
+                        } else {
+                            // Fallback to setExactAndAllowWhileIdle if permission not granted
                             alarmManager.setExactAndAllowWhileIdle(
                                     AlarmManager.RTC_WAKEUP,
                                     alarmTime.getTimeInMillis(),
                                     pendingIntent
                             );
-                            Log.d(TAG, "Scheduled exact alarm (Android 12+) for " + medicine.getName());
-                        } else {
-                            // Fallback to inexact repeating alarm if permission not granted
-                            alarmManager.setRepeating(
-                                    AlarmManager.RTC_WAKEUP,
-                                    alarmTime.getTimeInMillis(),
-                                    AlarmManager.INTERVAL_DAY,
-                                    pendingIntent
-                            );
-                            Log.w(TAG, "Using inexact alarm (permission not granted) for " + medicine.getName());
+                            Log.w(TAG, "Using setExactAndAllowWhileIdle (permission not granted) for " + medicine.getName());
                         }
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        // Android 6.0 - 11: Use setExactAndAllowWhileIdle for reliability
-                        alarmManager.setExactAndAllowWhileIdle(
-                                AlarmManager.RTC_WAKEUP,
-                                alarmTime.getTimeInMillis(),
-                                pendingIntent
-                        );
-                        Log.d(TAG, "Scheduled exact alarm (Android 6-11) for " + medicine.getName());
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        // Android 5.0+: Use setAlarmClock for maximum reliability
+                        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
+                        Log.d(TAG, "Scheduled AlarmClock (Android 5+) for " + medicine.getName());
                     } else {
-                        // Android 5.x and below: Use setExact
+                        // Android 4.4: Use setExact as fallback
                         alarmManager.setExact(
                                 AlarmManager.RTC_WAKEUP,
                                 alarmTime.getTimeInMillis(),
                                 pendingIntent
                         );
-                        Log.d(TAG, "Scheduled exact alarm (Android 5) for " + medicine.getName());
+                        Log.d(TAG, "Scheduled exact alarm (Android 4.4) for " + medicine.getName());
                     }
 
                     Log.d(TAG, "Alarm scheduled for " + medicine.getName() + " at " + 

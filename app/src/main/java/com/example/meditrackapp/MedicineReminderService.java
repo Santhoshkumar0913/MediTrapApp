@@ -83,14 +83,27 @@ public class MedicineReminderService {
         PendingIntent openAppPendingIntent = PendingIntent.getActivity(
                 context, openRequestCode, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Build the notification
+        // Create full-screen intent to wake screen and show notification even when locked
+        Intent fullScreenIntent = new Intent(context, Dashboard.class);
+        fullScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        int fullScreenRequestCode = notificationId * 10 + 4;
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+                context, fullScreenRequestCode, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        
+        // Build the notification with full-screen intent to wake screen
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Medicine Reminder")
                 .setContentText("Time to take " + medicine.getName() + " - " + medicine.getDosage() + " at " + time)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(openAppPendingIntent)
+                .setFullScreenIntent(fullScreenPendingIntent, true)  // This wakes the screen
                 .setAutoCancel(false)
+                .setOngoing(false)
+                .setVibrate(new long[]{0, 500, 200, 500})
+                .setLights(0xFF0000FF, 1000, 1000)
                 .addAction(R.drawable.ic_check, "Mark as Taken", takenPendingIntent)
                 .addAction(R.drawable.ic_skip, "Skip", skipPendingIntent);
         

@@ -109,6 +109,7 @@ public class MedicineSchedule extends BaseActivity {
         ensureNotificationPermission();
         ensureSmsPermission();
         ensureAlarmPermission();
+        ensureBatteryOptimization();
         updateUI();
     }
 
@@ -662,6 +663,45 @@ public class MedicineSchedule extends BaseActivity {
             }
         } else {
             android.util.Log.d("MedicineSchedule", "Alarm permission not required for this Android version");
+        }
+    }
+    
+    private void ensureBatteryOptimization() {
+        // Request to ignore battery optimizations for reliable alarms when screen is off
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent();
+            String packageName = getPackageName();
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+            
+            if (pm != null && !pm.isIgnoringBatteryOptimizations(packageName)) {
+                android.util.Log.d("MedicineSchedule", "Battery optimization is ON - requesting exemption");
+                
+                new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("🔋 Battery Optimization")
+                    .setMessage("To ensure medicine reminders work reliably when your screen is off or phone is sleeping, please disable battery optimization for this app.\n\n" +
+                               "This is essential for:\n" +
+                               "• Alarms triggering on time\n" +
+                               "• Notifications showing when screen is off\n" +
+                               "• Ringtone playing even in sleep mode\n\n" +
+                               "Click 'Allow' to disable battery optimization.")
+                    .setPositiveButton("Allow", (dialog, which) -> {
+                        try {
+                            intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                            intent.setData(Uri.parse("package:" + packageName));
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            android.util.Log.e("MedicineSchedule", "Error opening battery optimization settings", e);
+                            Toast.makeText(this, "Please disable battery optimization manually in Settings", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .setNegativeButton("Later", (dialog, which) -> {
+                        Toast.makeText(this, "Warning: Reminders may not work when screen is off", Toast.LENGTH_LONG).show();
+                    })
+                    .setCancelable(false)
+                    .show();
+            } else {
+                android.util.Log.d("MedicineSchedule", "Battery optimization is already disabled");
+            }
         }
     }
     

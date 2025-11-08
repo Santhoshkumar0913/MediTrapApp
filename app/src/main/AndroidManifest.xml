@@ -23,6 +23,12 @@
     
     <!-- Foreground service permission for reliable background operations -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    
+    <!-- Full-screen intent to wake screen and show notification when screen is off/locked -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    
+    <!-- Request to ignore battery optimizations for reliable alarms -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:allowBackup="true"
