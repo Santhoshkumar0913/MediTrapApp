@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -27,15 +30,28 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         String time = intent.getStringExtra("time");
         String medicineType = intent.getStringExtra("medicineType");
         String customDaysStr = intent.getStringExtra("customDays");
+        String medicineUserId = intent.getStringExtra("userId");
 
         if (medicineId == null || medicineName == null || time == null) {
+            return;
+        }
+
+        // CRITICAL: Verify this medicine belongs to the currently logged-in user
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            // No user logged in, don't show reminder
+            return;
+        }
+        
+        if (medicineUserId != null && !currentUser.getUid().equals(medicineUserId)) {
+            // This medicine belongs to a different user, don't show reminder
             return;
         }
 
         // Check if today is a scheduled day for this medicine
         if (!isTodayScheduled(customDaysStr)) {
             // Still reschedule for the next occurrence
-            rescheduleAlarmForTomorrow(context, createMedicineObject(medicineId, medicineName, dosage, medicineType, customDaysStr), time);
+            rescheduleAlarmForTomorrow(context, createMedicineObject(medicineId, medicineName, dosage, medicineType, customDaysStr, medicineUserId), time);
             return;
         }
 
@@ -55,7 +71,7 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         }
 
         // Create a Medicine object for the notification
-        Medicine medicine = createMedicineObject(medicineId, medicineName, dosage, medicineType, customDaysStr);
+        Medicine medicine = createMedicineObject(medicineId, medicineName, dosage, medicineType, customDaysStr, medicineUserId);
 
         // Show notification and play ringtone
         MedicineReminderService reminderService = new MedicineReminderService(context);
@@ -88,12 +104,13 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
     /**
      * Helper method to create a Medicine object with customDays
      */
-    private Medicine createMedicineObject(String medicineId, String medicineName, String dosage, String medicineType, String customDaysStr) {
+    private Medicine createMedicineObject(String medicineId, String medicineName, String dosage, String medicineType, String customDaysStr, String userId) {
         Medicine medicine = new Medicine();
         medicine.setId(medicineId);
         medicine.setName(medicineName);
         medicine.setDosage(dosage);
         medicine.setMedicineType(medicineType);
+        medicine.setUserId(userId);
         
         // Restore customDays list from comma-separated string
         if (customDaysStr != null && !customDaysStr.isEmpty()) {

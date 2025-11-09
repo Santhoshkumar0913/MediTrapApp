@@ -21,7 +21,7 @@ public class Settings extends BaseActivity {
 
     private EditText etName, etAge, etFamilyPhone, etPersonalPhone, etEmail;
     private Spinner spinnerGender;
-    private Button btnLogout;
+    private Button btnLogout, btnUpdateProfile;
     private ImageView backArrow;
     private SwitchCompat switchReminder;
     
@@ -45,6 +45,7 @@ public class Settings extends BaseActivity {
         etEmail = findViewById(R.id.etEmail);
         spinnerGender = findViewById(R.id.spinnerGender);
         btnLogout = findViewById(R.id.btnLogout);
+        btnUpdateProfile = findViewById(R.id.btnUpdateProfile);
         backArrow = findViewById(R.id.backArrow);
         switchReminder = findViewById(R.id.switchReminder);
 
@@ -63,6 +64,10 @@ public class Settings extends BaseActivity {
         // Save preference when switch is toggled (no toast, will show on update)
         switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean("reminder_ringtone_enabled", isChecked).apply();
+        });
+
+        btnUpdateProfile.setOnClickListener(v -> {
+            Toast.makeText(Settings.this, "Updated", Toast.LENGTH_SHORT).show();
         });
 
         btnLogout.setOnClickListener(v -> {
