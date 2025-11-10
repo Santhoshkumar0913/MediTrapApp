@@ -125,10 +125,10 @@ public class ExpandableMedicineAdapter extends RecyclerView.Adapter<ExpandableMe
         return "Not specified";
     }
 
-    /**
-     * Format dosage with appropriate unit based on medicine type.
-     * Same logic as MedicineSchedule.formatDosageForType()
-     */
+
+    //Format dosage with appropriate unit based on medicine type.
+
+
     private String formatDosageForType(Medicine med) {
         String dosage = med.getDosage() != null ? med.getDosage() : "";
         String type = med.getMedicineType() != null ? med.getMedicineType().toLowerCase() : "";

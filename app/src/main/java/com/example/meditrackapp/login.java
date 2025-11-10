@@ -93,7 +93,7 @@ public class login extends AppCompatActivity {
                     });
         });
 
-        // 🔹 Signup button → Go to signup page
+        // Signup button → Go to signup page
         btnSignup.setOnClickListener(v -> {
             startActivity(new Intent(login.this, signup.class));
         });

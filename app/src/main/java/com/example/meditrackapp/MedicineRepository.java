@@ -36,7 +36,7 @@ public class MedicineRepository {
             arr.put(obj);
             prefs(ctx).edit().putString(KEY_MEDICINES, arr.toString()).apply();
         } catch (JSONException e) {
-            // swallow for now; in production log this
+
         }
     }
 

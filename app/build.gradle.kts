@@ -52,7 +52,6 @@ dependencies {
 
     // 2. Google Maps (to support the geo intent and any future map integration)
     implementation("com.google.android.gms:play-services-maps:18.2.0")
-    // END: ADD THESE LINES
 
     implementation("com.google.firebase:firebase-auth:24.0.1")
     implementation(platform("com.google.firebase:firebase-bom:34.2.0"))

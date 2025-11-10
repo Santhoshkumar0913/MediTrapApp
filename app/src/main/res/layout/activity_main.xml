@@ -5,21 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/welcome_bg"
+    android:background="@drawable/background"
     tools:context=".MainActivity">
 
     <!-- App Logo -->
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="64dp"
-        android:text="Bhuvaneshkumar P 22MIS0537"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/logo"
@@ -50,7 +39,7 @@
         android:layout_width="316dp"
         android:layout_height="151dp"
         android:layout_marginTop="40dp"
-        android:text="Welcome to MediTrack! We're here to make managing your medication simple and stress-free. Let's set up your first medicine. Developed by VIT Students."
+        android:text="Welcome to MediTrack! We're here to make managing your medication simple and stress-free. Let's set up your first medicine."
         android:textAlignment="center"
         android:textColor="#6B7280"
         android:textSize="20sp"
@@ -76,18 +65,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.775" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="P Santhoshkumar 22MIS0187"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/textView3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.985" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -75,7 +75,7 @@ public class BootReceiver extends BroadcastReceiver {
                 }
             });
         } catch (Exception e) {
-            // Error in rescheduleAllMedicineAlarms
+
         }
     }
 }

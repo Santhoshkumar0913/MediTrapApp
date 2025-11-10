@@ -66,7 +66,7 @@ public class MedicineSchedule extends BaseActivity {
         @Override
         public void run() {
 
-            // reflect instantly without requiring navigation or a broadcast to be received
+
             boolean anyStatusChanged = false;
             for (Dose d : todaysDoses) {
                 String latest = getStoredDoseStatus(d.key);
@@ -266,10 +266,7 @@ public class MedicineSchedule extends BaseActivity {
         });
     }
     
-    /**
-     * Schedule alarms for all of today's medicines.
-     * This ensures notifications work globally, not just on this screen.
-     */
+
     private void scheduleAlarmsForTodaysMedicines() {
         if (todaysMedicines == null || todaysMedicines.isEmpty()) {
             return;
@@ -657,13 +654,8 @@ public class MedicineSchedule extends BaseActivity {
                 android.util.Log.d("MedicineSchedule", "Battery optimization is ON - requesting exemption");
                 
                 new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("🔋 Battery Optimization")
-                    .setMessage("To ensure medicine reminders work reliably when your screen is off or phone is sleeping, please disable battery optimization for this app.\n\n" +
-                               "This is essential for:\n" +
-                               "• Alarms triggering on time\n" +
-                               "• Notifications showing when screen is off\n" +
-                               "• Ringtone playing even in sleep mode\n\n" +
-                               "Click 'Allow' to disable battery optimization.")
+                    .setTitle("Battery Optimization")
+                    .setMessage("Click 'Allow' to disable battery optimization.")
                     .setPositiveButton("Allow", (dialog, which) -> {
                         try {
                             intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);

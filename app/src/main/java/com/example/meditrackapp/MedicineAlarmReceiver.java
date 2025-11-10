@@ -164,9 +164,8 @@ public class MedicineAlarmReceiver extends BroadcastReceiver {
         return false;
     }
 
-    /**
-     * Convert Calendar day of week to full day name.
-     */
+    //Convert Calendar day of week to full day name.
+
     private String getDayStringFromCalendar(int dayOfWeek) {
         switch (dayOfWeek) {
             case Calendar.SUNDAY: return "Sunday";

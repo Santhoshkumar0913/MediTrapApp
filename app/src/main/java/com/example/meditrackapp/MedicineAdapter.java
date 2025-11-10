@@ -54,10 +54,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         return items.size();
     }
 
-    /**
-     * Format dosage with appropriate unit based on medicine type.
-     * Same logic as MedicineSchedule.formatDosageForType()
-     */
+
     private String formatDosageForType(Medicine med) {
         String dosage = med.getDosage() != null ? med.getDosage() : "";
         String type = med.getMedicineType() != null ? med.getMedicineType().toLowerCase() : "";

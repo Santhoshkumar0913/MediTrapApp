@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
- //Uses AlarmManager to trigger notifications at scheduled times.
+//Uses AlarmManager to trigger notifications at scheduled times.
 
 public class MedicineAlarmScheduler {
     private static final String TAG = "MedicineAlarmScheduler";
@@ -210,7 +210,7 @@ public class MedicineAlarmScheduler {
     }
 
 
-     //Generate a unique request code for each medicine + time combination.
+    //Generate a unique request code for each medicine + time combination.
     private int getRequestCode(String medicineId, String time) {
         // Create a unique hash from medicine ID and time
         String combined = medicineId + "_" + time;
